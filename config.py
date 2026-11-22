@@ -93,7 +93,7 @@ def _load_dotenv_key(key: str) -> str:
 GEMINI_API_KEY = (os.environ.get("GEMINI_API_KEY", "").strip() or _load_dotenv_key("GEMINI_API_KEY"))
 GEMINI_MODEL = (os.environ.get("GEMINI_MODEL", "").strip() or _load_dotenv_key("GEMINI_MODEL"))
 GEMINI_FALLBACK_MODELS = [
-    m for m in [GEMINI_MODEL, "gemini-4-hydrogen", "gemini-3.1-pro-preview", "gemini-3.6-flash", "gemini-2.5-flash"] if m
+    m for m in [GEMINI_MODEL, "gemini-4-hydrogen", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"] if m
 ]
 
 # Optional Email notification settings (Gmail SMTP)

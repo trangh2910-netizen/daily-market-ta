@@ -55,7 +55,7 @@ def _synthesize_gemini_tts(text: str, out_mp3_path: Path) -> Path:
     import imageio_ffmpeg
     from google import genai
 
-    client = genai.Client(api_key=GEMINI_API_KEY, http_options={"api_version": "v1beta"})
+    client = genai.Client(api_key=GEMINI_API_KEY, http_options={"api_version": "v1beta", "timeout": 60000})
     interaction = client.interactions.create(
         model=GEMINI_TTS_MODEL,
         input=[

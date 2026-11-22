@@ -197,12 +197,13 @@ def _generate_gemini_briefing(
         "3) 'news_insights': danh sách 4-5 tin nổi bật từ JSON, mỗi tin gồm: 'title', 'so_what' (KHÔNG viết hời hợt; bắt buộc giải thích rõ 3 lớp: (a) Bản chất & nguyên nhân sự kiện, (b) Ảnh hưởng CỤ THỂ về Việt Nam như thế nào — tác động ra sao tới tỷ giá USD/VND, điều hành lãi suất của Ngân hàng Nhà nước, dòng vốn khối ngoại trên sàn Việt Nam, chi phí vốn/xuất nhập khẩu của doanh nghiệp VN, (c) Nhóm cổ phiếu Việt Nam nào chịu áp lực hay hưởng lợi như Ngân hàng, Bất động sản, Chứng khoán, Công nghệ, Thép, Bán lẻ/Xuất khẩu), 'tone' ('positive'|'caution'|'neutral').\n"
         "4) 'market_deep_dive': 5-6 câu phân tích sâu bức tranh VN-Index & các mã nổi bật trong watchlist (giải thích VÌ SAO dòng tiền lại chọn nhóm này, tránh nhóm kia, liên kết với tin vĩ mô, MA20/MA50, RSI, Volume).\n"
         "5) 'case_walkthrough': 5-6 câu hướng dẫn cực kỳ chi tiết từng bước để người mới nhìn vào biểu đồ mã minh họa của bài học TA hôm nay (chỉ rõ giá mở/đóng cửa, râu nến, vị trí so với MA20/MA50, volume và VÌ SAO hành động giá đó cho thấy tâm lý phe Mua/phe Bán).\n"
-        "6) 'podcast_script': kịch bản đọc Audio tiếng Việt SÂU SẮC NHƯNG VẪN NHÍ NHẢNH, DÍ DỎM (950-1.150 từ, KHÔNG dùng ký tự markdown như ** hay #, viết số thập phân bằng dấu phẩy để đọc tự nhiên). Phải giải thích rõ cơ chế 'tại sao' và 'nó ảnh hưởng gì tới ngành nào, túi tiền thế nào' ở từng tin vĩ mô, từng nhóm cổ phiếu và bài học TA.\n\n"
+        "6) 'uni_exam_examples': danh sách 2 ví dụ thực tế (mỗi ví dụ là 1 object {'subject': '...', 'concept': '...', 'essay_example': '...'}) liên hệ TRỰC TIẾP tin tức hoặc cổ phiếu hôm nay vào 2 trong 5 môn học của sinh viên: [Quản trị tài chính, Lập dự án đầu tư, Kinh tế vi mô, Nguyên lý kế toán, Hệ thống thông tin kế toán (AIS)]. 'essay_example' phải viết theo văn phong mạch lạc, có thuật ngữ môn học chuẩn xác (ví dụ WACC, NPV, IRR, độ co giãn cung-cầu, Bảng cân đối kế toán, Báo cáo KQKD, chu trình AIS/kiểm soát nội bộ...) để sinh viên có thể nhớ và trích nguyên ý làm ví dụ thi tự luận cuối kỳ.\n"
+        "7) 'podcast_script': kịch bản đọc Audio tiếng Việt SÂU SẮC NHƯNG VẪN NHÍ NHẢNH, DÍ DỎM (1.000-1.250 từ, KHÔNG dùng ký tự markdown như ** hay #, viết số thập phân bằng dấu phẩy để đọc tự nhiên). Phải giải thích rõ cơ chế 'tại sao' và 'ảnh hưởng gì về Việt Nam' ở từng tin vĩ mô, từng nhóm cổ phiếu, bài học TA, VÀ kết thúc bằng 1 mục ngắn đọc 2 ví dụ liên hệ môn học thi tự luận cực mượt.\n\n"
         "Trả về ĐÚNG 1 JSON object hợp lệ (không bọc markdown ```json).\n\n"
         f"DỮ LIỆU THẬT:\n{json.dumps(prompt_payload, ensure_ascii=False)}"
     )
 
-    client = genai.Client(api_key=GEMINI_API_KEY, http_options={"api_version": "v1beta"})
+    client = genai.Client(api_key=GEMINI_API_KEY, http_options={"api_version": "v1beta", "timeout": 90000})
     seen: set[str] = set()
     last_err: Exception | None = None
     for model_name in GEMINI_FALLBACK_MODELS:

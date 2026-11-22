@@ -4,3 +4,4 @@ __pycache__/
 .env
 pending_context.json
 agent_briefing.json
+logs/

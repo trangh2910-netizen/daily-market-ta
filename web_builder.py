@@ -308,6 +308,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <h2 class="section-title">📰 Tin Kinh Tế – Chính Trị ("Tin gì? → Vậy thì sao?")</h2>
       <div id="newsList"></div>
     </section>
+
+    <!-- Uni Exam Examples -->
+    <section class="card" id="uniSection" style="display:none;border-color:#f59e0b55;">
+      <h2 class="section-title">📚 Kho Ví Dụ Thi Tự Luận Cuối Kỳ (Liên hệ môn học)</h2>
+      <div id="uniList"></div>
+    </section>
   </div>
 
   <script>
@@ -469,6 +475,22 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="news-meaning"><strong>Ý nghĩa cho người mới:</strong> ${n.beginner_meaning}</div>
           </div>
         `).join("");
+      }
+
+      // Uni exam examples
+      const uniSection = document.getElementById("uniSection");
+      const uniList = document.getElementById("uniList");
+      const uniEx = ep.briefing.uni_exam_examples || [];
+      if (uniEx.length) {
+        uniSection.style.display = "block";
+        uniList.innerHTML = uniEx.map(ex => `
+          <div class="news-item caution">
+            <div class="news-meta">${ex.subject} · ${ex.concept}</div>
+            <div class="news-meaning"><strong>Ví dụ viết bài tự luận:</strong> ${ex.essay_example}</div>
+          </div>
+        `).join("");
+      } else {
+        uniSection.style.display = "none";
       }
     }
 

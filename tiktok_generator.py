@@ -86,7 +86,7 @@ def build_tiktok_script(context: dict[str, Any]) -> str:
                 "CHỈ trả về văn bản thuần tiếng Việt để đọc thành tiếng (không markdown, không emoji, viết số thập phân bằng dấu phẩy).\n\n"
                 f"JSON:\n{json.dumps(payload, ensure_ascii=False)}"
             )
-            client = genai.Client(api_key=GEMINI_API_KEY)
+            client = genai.Client(api_key=GEMINI_API_KEY, http_options={"api_version": "v1beta", "timeout": 45000})
             for model_name in GEMINI_FALLBACK_MODELS:
                 try:
                     resp = client.models.generate_content(model=model_name, contents=prompt)
@@ -254,6 +254,8 @@ def _render_video_from_audio(
         "aac",
         "-b:a",
         "192k",
+        "-movflags",
+        "+faststart",
         "-shortest",
         str(out_mp4_path),
     ]

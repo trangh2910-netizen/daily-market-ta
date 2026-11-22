@@ -22,6 +22,7 @@ def send_daily_email(
     lesson: dict[str, Any],
     audio_path: Path | None = None,
     chart_paths: list[Path] | None = None,
+    video_path: Path | None = None,
 ) -> bool:
     """Send a comprehensive, beginner-friendly daily briefing email with charts and MP3 attached."""
     if not (SMTP_USER and SMTP_PASS and NOTIFY_EMAIL):
@@ -83,6 +84,22 @@ def send_daily_email(
     ans_idx = quiz.get("answer_index", 0)
     ans_text = quiz.get("options", [""])[ans_idx] if quiz.get("options") else ""
 
+    uni_examples = briefing.get("uni_exam_examples") or []
+    uni_html = ""
+    if uni_examples:
+        uni_items = "".join(
+            f"<li style='margin-bottom:10px;'>"
+            f"<strong>[{ex.get('subject','')}]</strong> <em>{ex.get('concept','')}</em><br/>"
+            f"<span style='color:#334155;'>👉 Ví dụ viết bài tự luận: {ex.get('essay_example','')}</span>"
+            f"</li>"
+            for ex in uni_examples
+        )
+        uni_html = (
+            "<h3 style='color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:4px;'>"
+            "📚 4. Kho Ví Dụ Thi Tự Luận Cuối Kỳ (Liên hệ môn học hôm nay)</h3>"
+            f"<ul style='padding-left:18px;font-size:13.5px;background:#fefce8;padding-top:10px;padding-bottom:10px;border-radius:10px;'>{uni_items}</ul>"
+        )
+
     site_cta = (
         f'<p style="margin:20px 0;"><a href="{PUBLIC_SITE_URL}" '
         f'style="background:#0284c7;color:#ffffff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">'
@@ -121,8 +138,10 @@ def send_daily_email(
         <div style="color:#475569;font-size:12.5px;margin-top:6px;"><em>Đáp án: {ans_text} — {quiz.get('explanation', '')}</em></div>
       </div>
 
+      {uni_html}
+
       {site_cta}
-      <p style="font-size:13px;color:#64748b;margin-top:16px;">🎧 Đính kèm sẵn trong email: file <strong>podcast.mp3</strong> (giọng nam miền Bắc nhí nhảnh) và <strong>2 ảnh biểu đồ chú thích</strong> để bạn xem &amp; nghe ngay trên điện thoại.</p>
+      <p style="font-size:13px;color:#64748b;margin-top:16px;">📎 <strong>Đính kèm sẵn ngay trong email:</strong> file nghe <strong>podcast.mp3</strong> (giọng nam miền Bắc nhí nhảnh) và <strong>2 ảnh biểu đồ chú thích</strong> để bạn xem &amp; nghe ngay trên điện thoại.</p>
     </div>
     """
 
@@ -150,6 +169,14 @@ def send_daily_email(
                 subtype="png",
                 filename=chart_p.name,
             )
+
+    if video_path and video_path.exists() and video_path.stat().st_size <= 15 * 1024 * 1024:
+        msg.add_attachment(
+            video_path.read_bytes(),
+            maintype="video",
+            subtype="mp4",
+            filename=video_path.name,
+        )
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=120) as smtp:
         smtp.login(SMTP_USER, SMTP_PASS)
