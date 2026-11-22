@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1120" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="./manifest.json" />
+  <title>Bản Tin &amp; Học TA Hàng Ngày</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 48px;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 16px; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand h1 { margin: 0; font-size: 1.35rem; color: #f8fafc; }
+    .brand p { margin: 4px 0 0; font-size: 0.88rem; color: var(--muted); }
+    select.ep-select {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.92rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e2e8f0;
+    }
+    /* Podcast Player */
+    .player-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-color: #38bdf866;
+    }
+    .player-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .btn {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+      padding: 10px 18px;
+    }
+    .progress-wrap {
+      width: 100%;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .script-box {
+      margin-top: 14px;
+      padding: 14px;
+      background: #0b1120;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      white-space: pre-line;
+      display: none;
+    }
+    /* Macro strip */
+    .macro-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 10px;
+    }
+    .macro-item {
+      background: var(--surface-2);
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid #33415580;
+    }
+    .macro-label { font-size: 0.8rem; color: var(--muted); }
+    .macro-val { font-size: 1.15rem; font-weight: 700; margin: 4px 0 2px; }
+    .up { color: var(--green); }
+    .down { color: var(--red); }
+    .flat { color: var(--amber); }
+    /* News */
+    .news-item {
+      padding: 14px;
+      background: var(--surface-2);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      border-left: 4px solid var(--accent);
+    }
+    .news-item.positive { border-left-color: var(--green); }
+    .news-item.caution { border-left-color: var(--amber); }
+    .news-meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
+    .news-title { font-weight: 700; font-size: 0.98rem; margin: 0 0 6px; }
+    .news-title a { color: #f8fafc; text-decoration: none; }
+    .news-title a:hover { text-decoration: underline; color: var(--accent); }
+    .news-meaning {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      background: #0f172a;
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+    /* Charts */
+    .chart-img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 8px;
+      display: block;
+    }
+    /* Watchlist table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #1e293b; }
+    th { color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+    .badge.bullish { background: #14532d; color: #86efac; }
+    .badge.caution { background: #78350f; color: #fde68a; }
+    .badge.bearish { background: #7f1d1d; color: #fca5a5; }
+    .badge.neutral { background: #334155; color: #e2e8f0; }
+    /* Quiz */
+    .quiz-box {
+      margin-top: 14px;
+      padding: 14px;
+      background: #0f172a;
+      border-radius: 12px;
+      border: 1px solid #38bdf844;
+    }
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .quiz-opt.correct { background: #14532d; border-color: var(--green); }
+    .quiz-opt.wrong { background: #7f1d1d; border-color: var(--red); }
+    .quiz-explain { margin-top: 10px; font-size: 0.88rem; color: #bae6fd; display: none; }
+    .pill-note {
+      display: inline-block;
+      font-size: 0.8rem;
+      background: #1e293b;
+      color: #7dd3fc;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1>📊 Bản Tin &amp; Học TA Hàng Ngày</h1>
+        <p id="subHeader">Đang tải dữ liệu...</p>
+      </div>
+      <select id="episodeSelect" class="ep-select" aria-label="Chọn ngày bản tin"></select>
+    </header>
+
+    <!-- Audio Player -->
+    <section class="card player-card">
+      <h2 class="section-title">🎧 Nghe Podcast Gia Sư Hôm Nay</h2>
+      <div id="introNote" style="font-size:0.93rem;color:#cbd5e1;"></div>
+      <audio id="audioEl" preload="metadata"></audio>
+      <div class="player-controls">
+        <button id="playBtn" class="btn btn-primary">▶ Nghe bản tin</button>
+        <button id="back15Btn" class="btn">-15s</button>
+        <button id="fwd15Btn" class="btn">+15s</button>
+        <button id="speedBtn" class="btn">Tốc độ: 1.0x</button>
+        <button id="toggleScriptBtn" class="btn">📄 Đọc lời giảng</button>
+      </div>
+      <div class="progress-wrap">
+        <span id="curTime">00:00</span>
+        <input id="seekBar" type="range" min="0" max="100" value="0" />
+        <span id="durTime">00:00</span>
+      </div>
+      <div id="scriptBox" class="script-box"></div>
+      <div id="tiktokBox" style="margin-top:16px;display:none;">
+        <div style="font-weight:700;font-size:0.95rem;color:#7dd3fc;margin-bottom:8px;">🎬 Video TikTok / Reels dọc (9:16) sẵn sàng đăng:</div>
+        <video id="tiktokVideo" controls playsinline style="width:100%;max-width:340px;border-radius:14px;border:1px solid #334155;display:block;"></video>
+      </div>
+    </section>
+
+    <!-- TA Lesson + Real Annotated Chart -->
+    <section class="card" id="lessonSection">
+      <h2 class="section-title">🎓 Mỗi Ngày 1 Chiêu TA (Thực chiến trên chart thật)</h2>
+      <div id="lessonTitle" style="font-weight:700;font-size:1.05rem;color:#7dd3fc;"></div>
+      <p id="lessonConcept" style="margin:8px 0;"></p>
+      <div id="caseWalkthrough" style="background:#1e293b;padding:12px;border-radius:10px;font-size:0.92rem;"></div>
+      <div id="lessonChartWrap" style="margin-top:12px;"></div>
+      <div class="quiz-box">
+        <div style="font-weight:700;font-size:0.94rem;">✅ Mini Quiz kiểm tra nhanh:</div>
+        <div id="quizQuestion" style="margin-top:6px;font-size:0.93rem;"></div>
+        <div id="quizOptions"></div>
+        <div id="quizExplain" class="quiz-explain"></div>
+      </div>
+    </section>
+
+    <!-- Macro & VN-Index -->
+    <section class="card">
+      <h2 class="section-title">📈 Bức Tranh Thị Trường &amp; Vĩ Mô</h2>
+      <div id="macroGrid" class="macro-grid"></div>
+      <div id="vniChartWrap" style="margin-top:14px;"></div>
+    </section>
+
+    <!-- Watchlist Table -->
+    <section class="card">
+      <h2 class="section-title">🔍 Soi Watchlist Bằng Ngôn Ngữ Bình Dân</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mã</th>
+              <th>Giá đóng cửa</th>
+              <th>Thay đổi</th>
+              <th>Khối lượng</th>
+              <th>Trạng thái &amp; Giải thích</th>
+            </tr>
+          </thead>
+          <tbody id="watchlistBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- News -->
+    <section class="card">
+      <h2 class="section-title">📰 Tin Kinh Tế – Chính Trị ("Tin gì? → Vậy thì sao?")</h2>
+      <div id="newsList"></div>
+    </section>
+  </div>
+
+  <script>
+    window.__ARCHIVE_DATA__ = [{"episode_id": "2026-11-23", "generated_at": "2026-11-23T00:36:29.814321+07:00", "generated_date_vn": "23/11/2026", "generated_time_vn": "00:36", "market_trade_date_vn": "20/11/2026", "is_weekend_or_closed": true, "vnindex": {"symbol": "VNINDEX", "name": "Chỉ số VN-Index", "sector": "Thị trường chung", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 1671.25, "high": 1689.18, "low": 1666.41, "close": 1688.79, "prev_close": 1689.62, "change": -0.83, "change_pct": -0.05, "volume": 521998819, "vol_ratio": 0.94, "ma20": 1730.89, "ma50": 1748.05, "rsi14": 37.1, "rsi_zone": "weak", "rsi_plain": "RSI 37 (Lực mua còn yếu)", "macd": -11.36, "macd_signal": -7.55, "support_20": 1675.08, "resistance_20": 1781.45, "candle": {"color": "green", "body_pct": 77.0, "upper_wick_pct": 1.7, "lower_wick_pct": 21.3, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, "stocks": [{"symbol": "FPT", "name": "FPT Corp", "sector": "Công nghệ", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 45600.0, "high": 46000.0, "low": 44650.0, "close": 45000.0, "prev_close": 45700.0, "change": -700.0, "change_pct": -1.53, "volume": 15727808, "vol_ratio": 1.41, "ma20": 50850.0, "ma50": 57302.62, "rsi14": 20.2, "rsi_zone": "oversold", "rsi_plain": "RSI 20 (Vùng quá bán - giá đã giảm khá sâu)", "macd": -3020.22, "macd_signal": -2701.46, "support_20": 45600.0, "resistance_20": 57800.0, "candle": {"color": "red", "body_pct": 44.4, "upper_wick_pct": 29.6, "lower_wick_pct": 25.9, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": true, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Giảm sâu", "status_tone": "bearish", "beginner_note": "Giá dưới MA20 và RSI thấp; chỉ nên quan sát chờ tạo đáy ổn định. Khối lượng hôm nay cao gấp 1.4x mức bình thường."}, {"symbol": "HPG", "name": "Hòa Phát", "sector": "Thép", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 20300.0, "high": 20500.0, "low": 20150.0, "close": 20450.0, "prev_close": 20450.0, "change": 0.0, "change_pct": 0.0, "volume": 15670017, "vol_ratio": 0.82, "ma20": 20995.0, "ma50": 20828.0, "rsi14": 42.0, "rsi_zone": "weak", "rsi_plain": "RSI 42 (Lực mua còn yếu)", "macd": -75.22, "macd_signal": 16.46, "support_20": 20300.0, "resistance_20": 21900.0, "candle": {"color": "green", "body_pct": 42.9, "upper_wick_pct": 14.3, "lower_wick_pct": 42.9, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "VCB", "name": "Vietcombank", "sector": "Ngân hàng", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 50200.0, "high": 50600.0, "low": 50000.0, "close": 50200.0, "prev_close": 50800.0, "change": -600.0, "change_pct": -1.18, "volume": 3909552, "vol_ratio": 0.78, "ma20": 53965.0, "ma50": 56140.0, "rsi14": 23.1, "rsi_zone": "oversold", "rsi_plain": "RSI 23 (Vùng quá bán - giá đã giảm khá sâu)", "macd": -1460.19, "macd_signal": -1123.46, "support_20": 50700.0, "resistance_20": 58400.0, "candle": {"color": "doji", "body_pct": 0.0, "upper_wick_pct": 66.7, "lower_wick_pct": 33.3, "is_doji": true, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Giảm sâu", "status_tone": "bearish", "beginner_note": "Giá dưới MA20 và RSI thấp; chỉ nên quan sát chờ tạo đáy ổn định."}, {"symbol": "TCB", "name": "Techcombank", "sector": "Ngân hàng", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 20450.0, "high": 21200.0, "low": 20150.0, "close": 21200.0, "prev_close": 20600.0, "change": 600.0, "change_pct": 2.91, "volume": 13213084, "vol_ratio": 0.95, "ma20": 21664.3, "ma50": 21786.32, "rsi14": 44.3, "rsi_zone": "weak", "rsi_plain": "RSI 44 (Lực mua còn yếu)", "macd": -246.93, "macd_signal": -134.17, "support_20": 20600.0, "resistance_20": 22901.0, "candle": {"color": "green", "body_pct": 71.4, "upper_wick_pct": 0.0, "lower_wick_pct": 28.6, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": true}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": false, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "SSI", "name": "Chứng khoán SSI", "sector": "Chứng khoán", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 19300.0, "high": 20000.0, "low": 19250.0, "close": 20000.0, "prev_close": 19550.0, "change": 450.0, "change_pct": 2.3, "volume": 25763478, "vol_ratio": 1.32, "ma20": 19890.0, "ma50": 19985.0, "rsi14": 51.2, "rsi_zone": "neutral", "rsi_plain": "RSI 51 (Cân bằng, chưa rõ xu hướng)", "macd": -2.05, "macd_signal": 27.19, "support_20": 18500.0, "resistance_20": 21000.0, "candle": {"color": "green", "body_pct": 93.3, "upper_wick_pct": 0.0, "lower_wick_pct": 6.7, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": true}, "signals": {"vol_spike": false, "ma20_cross_up": true, "macd_cross_up": false, "above_ma20": true, "above_ma50": true, "near_support": false, "near_resistance": false}, "status_label": "Tích cực", "status_tone": "bullish", "beginner_note": "Giá nằm trên đường trung bình 20 ngày (MA20), xu hướng ngắn hạn đang khỏe."}, {"symbol": "MWG", "name": "Thế Giới Di Động", "sector": "Bán lẻ", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 71500.0, "high": 71800.0, "low": 70500.0, "close": 71700.0, "prev_close": 72100.0, "change": -400.0, "change_pct": -0.55, "volume": 3191559, "vol_ratio": 1.23, "ma20": 73620.0, "ma50": 73318.1, "rsi14": 40.7, "rsi_zone": "weak", "rsi_plain": "RSI 41 (Lực mua còn yếu)", "macd": -447.55, "macd_signal": -196.58, "support_20": 71300.0, "resistance_20": 77200.0, "candle": {"color": "doji", "body_pct": 15.4, "upper_wick_pct": 7.7, "lower_wick_pct": 76.9, "is_doji": true, "is_hammer": true, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "VHM", "name": "Vinhomes", "sector": "Bất động sản", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 59500.0, "high": 60400.0, "low": 58900.0, "close": 60400.0, "prev_close": 60400.0, "change": 0.0, "change_pct": 0.0, "volume": 6242056, "vol_ratio": 1.14, "ma20": 62185.0, "ma50": 64776.0, "rsi14": 39.5, "rsi_zone": "weak", "rsi_plain": "RSI 40 (Lực mua còn yếu)", "macd": -1003.1, "macd_signal": -1015.69, "support_20": 59600.0, "resistance_20": 64900.0, "candle": {"color": "green", "body_pct": 60.0, "upper_wick_pct": 0.0, "lower_wick_pct": 40.0, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "MBB", "name": "MB Bank", "sector": "Ngân hàng", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 18500.0, "high": 18550.0, "low": 18250.0, "close": 18250.0, "prev_close": 18700.0, "change": -450.0, "change_pct": -2.41, "volume": 13428478, "vol_ratio": 1.21, "ma20": 19185.0, "ma50": 19473.0, "rsi14": 29.3, "rsi_zone": "oversold", "rsi_plain": "RSI 29 (Vùng quá bán - giá đã giảm khá sâu)", "macd": -239.71, "macd_signal": -156.59, "support_20": 18500.0, "resistance_20": 19900.0, "candle": {"color": "red", "body_pct": 83.3, "upper_wick_pct": 16.7, "lower_wick_pct": 0.0, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Giảm sâu", "status_tone": "bearish", "beginner_note": "Giá dưới MA20 và RSI thấp; chỉ nên quan sát chờ tạo đáy ổn định."}], "macro": [{"symbol": "^GSPC", "label": "S&P 500 (Mỹ)", "unit": "điểm", "decimals": 2, "close": 6910.39, "change_pct": -3.7, "date_vn": "20/11/2026"}, {"symbol": "GC=F", "label": "Vàng Thế Giới", "unit": "USD/oz", "decimals": 1, "close": 3515.4, "change_pct": -4.62, "date_vn": "20/11/2026"}, {"symbol": "USDVND=X", "label": "Tỷ giá USD/VND", "unit": "VND", "decimals": 0, "close": 25705.0, "change_pct": -0.16, "date_vn": "22/11/2026"}, {"symbol": "BTC-USD", "label": "Bitcoin", "unit": "USD", "decimals": 0, "close": 60779.0, "change_pct": 1.14, "date_vn": "22/11/2026"}], "news": [{"title": "Vàng bạc liên tục phá đáy, hai “cá mập” bất ngờ hành động trái ngược", "summary": "Theo Reuters, đà bán tháo kim loại quý diễn ra trong bối cảnh kỳ vọng Fed tiếp tục tăng lãi suất ngày càng mạnh, đồng USD neo ở vùng cao và làn sóng bán tháo cổ phiếu liên quan đến trí tuệ nhân tạo (AI) lan rộng.", "link": "https://cafef.vn/vang-bac-lien-tuc-pha-day-hai-ca-map-bat-ngo-hanh-dong-trai-nguoc-188261121102002294.chn", "source": "CafeF Chứng khoán", "category": "Chứng khoán", "lang": "vi", "published_iso": "2026-11-21T10:20:00+07:00", "published_vn": "10:20 21/11", "score": 17, "beginner_meaning": "Lãi suất là 'giá của đồng tiền'. Khi lãi suất tăng, vay vốn đắt đỏ hơn và tiền gửi tiết kiệm hấp dẫn hơn nên chứng khoán thường chịu áp lực; ngược lại lãi suất giảm giúp tiền rẻ chảy vào cổ phiếu.", "impact_tone": "neutral"}, {"title": "Tổng thống Mỹ Trump nhắc châu Âu về khoản tiền khổng lồ chi cho Ukraine", "summary": "Tổng thống Ukraine Volodymyr Zelensky cho biết, trong tuần này, Tổng thống Mỹ Donald Trump đã nói với các nhà lãnh đạo châu Âu rằng họ đang chi rất nhiều tiền cho cuộc xung đột ở Ukraine. Do đó, nếu đạt được thỏa thuận hòa bình với Nga, họ có thể sử dụng số ti...", "link": "https://cafef.vn/tong-thong-my-trump-nhac-chau-au-ve-khoan-tien-khong-lo-chi-cho-ukraine-188261122124712656.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T13:36:00+07:00", "published_vn": "13:36 22/11", "score": 14, "beginner_meaning": "Bất ổn địa chính trị hoặc thuế quan thường đẩy giá vàng và dầu biến động mạnh, khiến nhà đầu tư có xu hướng tìm nơi trú ẩn an toàn thay vì mạo hiểm.", "impact_tone": "caution"}, {"title": "Chiến sự Nga - Ukraine có thể kết thúc sau 1 tuần?", "summary": "Theo báo Nga có hai công thức thỏa thuận được cho có thể chấm dứt xung đột Nga - Ukraine trong vòng 1 tuần.", "link": "https://cafef.vn/chien-su-nga-ukraine-co-the-ket-thuc-sau-1-tuan-188261122235456702.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T23:54:00+07:00", "published_vn": "23:54 22/11", "score": 11, "beginner_meaning": "Bất ổn địa chính trị hoặc thuế quan thường đẩy giá vàng và dầu biến động mạnh, khiến nhà đầu tư có xu hướng tìm nơi trú ẩn an toàn thay vì mạo hiểm.", "impact_tone": "caution"}, {"title": "Mâu thuẫn Mỹ - Trung nảy sinh ngay sau khi Tổng thống Trump tới Thâm Quyến", "summary": "Bộ Thương mại Trung Quốc vừa yêu cầu Ủy ban Truyền thông Liên bang Mỹ (FCC) rút lại lệnh cấm các nhà mạng Trung Quốc tiếp cận trực tiếp số điện thoại của Mỹ, đồng thời tuyên bố sẽ triển khai biện pháp bảo vệ lợi ích của mình.", "link": "https://cafef.vn/mau-thuan-my-trung-nay-sinh-ngay-sau-khi-tong-thong-trump-toi-tham-quyen-188261122185337491.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T21:00:00+07:00", "published_vn": "21:00 22/11", "score": 11, "beginner_meaning": "Tin tức vĩ mô giúp bạn hiểu bối cảnh dòng tiền và tâm lý chung của doanh nghiệp trong nước lẫn quốc tế.", "impact_tone": "neutral"}, {"title": "Liên minh châu Âu tăng tốc viện trợ cho Ukraine sau thượng đỉnh Mỹ - Trung - Nga", "summary": "Liên minh châu Âu (EU) vừa thông qua 2 quyết định cho phép cung cấp thêm 1 tỷ euro viện trợ quân sự cho Ukraine, thông qua Cơ chế Hòa bình châu Âu (EPF).", "link": "https://cafef.vn/lien-minh-chau-au-tang-toc-vien-tro-cho-ukraine-sau-thuong-dinh-my-trung-nga-188261122154111736.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T18:00:00+07:00", "published_vn": "18:00 22/11", "score": 11, "beginner_meaning": "Tin tức vĩ mô giúp bạn hiểu bối cảnh dòng tiền và tâm lý chung của doanh nghiệp trong nước lẫn quốc tế.", "impact_tone": "neutral"}, {"title": "Góc nhìn chuyên gia: Nhịp giảm là cơ hội giải ngân chọn lọc, 3 nhóm cổ phiếu tiềm năng kỳ vọng đón dòng tiền mới", "summary": "Các chuyên gia cho rằng mặt bằng lãi suất, áp lực bán ròng của khối ngoại và những bất ổn trên thị trường quốc tế đang khiến dòng tiền duy trì trạng thái thận trọng.", "link": "https://cafef.vn/goc-nhin-chuyen-gia-nhip-giam-la-co-hoi-giai-ngan-chon-loc-3-nhom-co-phieu-tiem-nang-ky-vong-don-dong-tien-moi-188261122141751308.chn", "source": "CafeF Chứng khoán", "category": "Chứng khoán", "lang": "vi", "published_iso": "2026-11-22T14:14:00+07:00", "published_vn": "14:14 22/11", "score": 11, "beginner_meaning": "Lãi suất là 'giá của đồng tiền'. Khi lãi suất tăng, vay vốn đắt đỏ hơn và tiền gửi tiết kiệm hấp dẫn hơn nên chứng khoán thường chịu áp lực; ngược lại lãi suất giảm giúp tiền rẻ chảy vào cổ phiếu.", "impact_tone": "neutral"}, {"title": "Ông Zelensky: Ukraine cần văn bản cam kết an ninh kiểu NATO", "summary": "Tổng thống Zelensky tuyên bố muốn thấy những cam kết bằng văn bản về các đảm bảo an ninh kiểu NATO dành cho Ukraine.", "link": "https://vnexpress.net/ong-zelensky-ukraine-can-van-ban-cam-ket-an-ninh-kieu-nato-5147574.html", "source": "VnExpress Thế giới", "category": "Chính trị - Địa chính trị", "lang": "vi", "published_iso": "2026-11-22T09:37:08+07:00", "published_vn": "09:37 22/11", "score": 9, "beginner_meaning": "Tin tức vĩ mô giúp bạn hiểu bối cảnh dòng tiền và tâm lý chung của doanh nghiệp trong nước lẫn quốc tế.", "impact_tone": "neutral"}, {"title": "Thị trường chứng khoán “thiếu tiền”: Loạt thương vụ bán vốn bất thành, người nội bộ cũng “rụt rè” mua cổ phiếu", "summary": "Hàng loạt doanh nghiệp phải kéo dài thời gian chào bán, không phân phối hết, thậm chí dừng kế hoạch tăng vốn. Không ít lãnh đạo doanh nghiệp và người có liên quan cũng chỉ mua được một phần nhỏ lượng cổ phiếu đã đăng ký.", "link": "https://cafef.vn/thi-truong-chung-khoan-thieu-tien-loat-thuong-vu-ban-von-bat-thanh-nguoi-noi-bo-cung-rut-re-mua-co-phieu-188261122230850822.chn", "source": "CafeF Chứng khoán", "category": "Chứng khoán", "lang": "vi", "published_iso": "2026-11-23T00:05:00+07:00", "published_vn": "00:05 23/11", "score": 8, "beginner_meaning": "Dòng tiền của nhà đầu tư lớn và khối ngoại thường dẫn dắt tâm lý thị trường ngắn hạn.", "impact_tone": "neutral"}], "lesson": {"id": 2, "slug": "wicks-and-pinbar", "title": "Bài 2: Râu nến (Bóng nến) — Dấu vết của sự từ chối giá", "focus_indicator": "wick", "concept_plain": "Đường mảnh thò ra trên hoặc dưới thân nến gọi là 'râu nến'. Râu DƯỚI dài giống cây búa (nến rút chân) cho thấy trong phiên giá từng bị đạp xuống sâu, nhưng cuối phiên có lực mua mạnh kéo ngược lên — dấu hiệu có người đỡ giá. Ngược lại, râu TRÊN dài nghĩa là giá cố vượt lên nhưng bị bán dội xuống.", "how_to_spot": "So sánh độ dài phần râu nến phía dưới/trên với phần thân đặc của cây nến hôm nay.", "quiz": {"question": "Khi giá giảm về vùng thấp rồi xuất hiện nến có râu dưới rất dài (nến rút chân), điều đó thường báo hiệu gì?", "options": ["Lực bán hoàn toàn áp đảo tới cuối phiên", "Có lực cầu bắt đáy xuất hiện, từ chối mức giá thấp", "Công ty sắp phá sản"], "answer_index": 1, "explanation": "Râu dưới dài nghĩa là phe bán đã đẩy giá xuống nhưng phe mua kéo giá bật ngược trở lại trước khi đóng cửa."}}, "case_stock_symbol": "MWG", "briefing": {"headline": "Điểm tin & Phân tích thị trường ngày 23/11/2026: Sóng gió vĩ mô quốc tế và bài học đọc vị dòng tiền qua râu nến", "intro_note": "Chào anh em F0! Hôm nay ngày 23/11/2026 thị trường tạm nghỉ giao dịch cuối tuần, nên thầy trò mình sẽ cùng nhìn lại phiên giao dịch ngày 20/11/2026 khi VN-Index dừng chân tại 1.688,79 điểm (giảm nhẹ 0,05%). Lý do cốt lõi khiến thị trường đang ở trạng thái tích lũy thận trọng dưới đường MA20 là đà giảm mạnh từ vĩ mô quốc tế với S&P 500 mất 3,7% và vàng bão táp giảm 4,62%, kéo theo tâm lý phòng thủ bao trùm dòng tiền nội lẫn ngoại.", "news_insights": [{"title": "Vàng bạc liên tục phá đáy, hai “cá mập” bất ngờ hành động trái ngược", "so_what": "(a) Bản chất & nguyên nhân: Kỳ vọng Fed tiếp tục giữ lãi suất cao cùng làn sóng bán tháo cổ phiếu trí tuệ nhân tạo (AI) lan rộng đã đẩy giá vàng thế giới lao dốc 4,62% xuống 3.515,4 USD/oz và chỉ số S&P 500 giảm 3,7% xuống 6.910,39 điểm. (b) Tác động tới Việt Nam: Mặt bằng lãi suất USD ở mức cao giữ tỷ giá USD/VND ở mức 25.705 VND, khiến Ngân hàng Nhà nước phải cẩn trọng trong chính sách tiền tệ và duy trì lãi suất điều hành ổn định; dòng vốn ngoại tiếp tục xu hướng rút vốn khỏi thị trường chứng khoán Việt Nam để tìm kiếm an toàn tại các tài sản gốc USD, đẩy chi phí vốn của doanh nghiệp nhập khẩu lên cao. (c) Nhóm cổ phiếu chịu ảnh hưởng: Nhóm Ngân hàng (VCB, MBB) và Bất động sản (VHM) chịu áp lực chi phí vốn tăng; cổ phiếu Công nghệ (FPT) bị ảnh hưởng bởi tâm lý bán tháo ngành AI toàn cầu; trong khi nhóm Bán lẻ/Xuất khẩu chịu biến động hai chiều từ tỷ giá.", "tone": "caution"}, {"title": "Tổng thống Mỹ Trump nhắc châu Âu về khoản tiền khổng lồ chi cho Ukraine", "so_what": "(a) Bản chất & nguyên nhân: Tổng thống Mỹ Donald Trump phát tín hiệu thúc ép các quốc gia châu Âu gánh vác chi phí viện trợ tài chính cho Ukraine, nhằm gia tăng áp lực chấm dứt xung đột vũ trang. (b) Tác động tới Việt Nam: Kỳ vọng chiến sự hạ nhiệt giúp hạ tầng thương mại toàn cầu bớt bấp bách, áp lực tỷ giá USD/VND giảm nhẹ 0,16% xuống 25.705 VND, giúp NHNN bớt sức ép can thiệp thị trường ngoại hối và tạo dư địa dòng vốn ngoại quay trở lại sòng Việt. (c) Nhóm cổ phiếu chịu ảnh hưởng: Nhóm Xuất khẩu, Thép (HPG) và Bán lẻ (MWG) hưởng lợi nhờ tâm lý giao thương quốc tế phục hồi; Bất động sản KCN tiếp tục thu hút sự quan tâm của nhà đầu tư.", "tone": "positive"}, {"title": "Chiến sự Nga - Ukraine có thể kết thúc sau 1 tuần?", "so_what": "(a) Bản chất & nguyên nhân: Thông tin về hai công thức thỏa thuận hòa bình giúp thị trường đặt kỳ vọng cao vào việc chấm dứt sớm xung đột địa chính trị giữa Nga và Ukraine. (b) Tác động tới Việt Nam: Giá nguyên vật liệu thô và chi phí vận tải biển hạ nhiệt, giúp kiểm soát lạm phát trong nước, giải tỏa áp lực tỷ giá (USD/VND đạt 25.705 VND), giúp doanh nghiệp Việt giảm chi phí vốn nhập khẩu và khối ngoại bớt rút vốn. (c) Nhóm cổ phiếu chịu ảnh hưởng: Nhóm Thép (HPG), Bán lẻ (MWG) và Chứng khoán (SSI) hưởng lợi lớn nhờ chi phí đầu vào giảm và tâm lý dòng tiền cá nhân hào hứng quay trở lại.", "tone": "positive"}, {"title": "Mâu thuẫn Mỹ - Trung nảy sinh ngay sau khi Tổng thống Trump tới Thâm Quyến", "so_what": "(a) Bản chất & nguyên nhân: Căng thẳng công nghệ Mỹ - Trung bùng phát khi Bộ Thương mại Trung Quốc yêu cầu FCC Mỹ rút lệnh cấm các nhà mạng nước này tiếp cận số điện thoại Mỹ. (b) Tác động tới Việt Nam: Xung đột thương mại đẩy nhanh làn sóng dịch chuyển chuỗi cung ứng sang Việt Nam, tuy nhiên những rủi ro vĩ mô này khiến dòng vốn ngoại có xu hướng đứng ngoài quan sát, gây sức ép nhất định lên tỷ giá USD/VND và điều hành tiền tệ của NHNN. (c) Nhóm cổ phiếu chịu ảnh hưởng: Nhóm Công nghệ (FPT) chịu áp lực ngắn hạn do biến động ngành chip/công nghệ toàn cầu; nhóm Bất động sản KCN và Xuất khẩu hưởng lợi dài hạn từ xu hướng chuyển dịch sản xuất.", "tone": "caution"}, {"title": "Liên minh châu Âu tăng tốc viện trợ cho Ukraine sau thượng đỉnh Mỹ - Trung - Nga", "so_what": "(a) Bản chất & nguyên nhân: EU thông qua gói viện trợ quân sự 1 tỷ euro cho Ukraine thông qua Cơ chế Hòa bình châu Âu (EPF) nhằm củng cố vị thế trước các đàm phán hòa bình. (b) Tác động tới Việt Nam: Các gói chi tiêu quân sự kéo dài địa chính trị phức tạp, khiến tâm lý dòng vốn ngoại trên thị trường Việt Nam duy trì sự cẩn trọng cao độ, gián tiếp tác động lên sức ép tỷ giá USD/VND và chi phí vay nợ bằng ngoại tệ của doanh nghiệp trong nước. (c) Nhóm cổ phiếu chịu ảnh hưởng: Nhóm Chứng khoán (SSI) và Bất động sản (VHM) chịu sự giằng co do dòng tiền ngoại chưa giải ngân mạnh; nhóm Ngân hàng (VCB, TCB, MBB) cần thêm thời gian tích lũy.", "tone": "neutral"}], "market_deep_dive": "Kết thúc phiên giao dịch 20/11/2026, chỉ số VN-Index đóng cửa tại 1.688,79 điểm, giảm nhẹ 0,05% với RSI14 nằm ở mức 37,1 và giá tiếp tục nằm dưới đường MA20, cho thấy đà phục hồi chung của thị trường vẫn còn tương đối yếu ớt. Dòng tiền hiện tại thể hiện sự phân hóa rõ rệt khi chủ động tháo chạy khỏi các mã chịu áp lực giảm sâu như FPT (giảm -1,53%, RSI lún sâu xuống 20,2 với khối lượng cao gấp 1,41 lần bình thường), MBB (giảm -2,41%, RSI 29,3) hay VCB (giảm -1,18%, RSI 23,1). Ngược lại, điểm sáng hiếm hoi thuộc về nhóm Chứng khoán với SSI tăng 2,3% lên 20.000 đồng, đóng cửa chính thức vượt đường MA20 (19.890 đồng) cùng RSI đạt 51,2 và thanh khoản đạt 1,32 lần bình thường, cho thấy dòng tiền cá mập đang ưu ái những cổ phiếu có sức mạnh kỹ thuật vượt trội. Trong khi đó, các trụ cột khác như TCB dù bật tăng 2,91% lên 21.200 đồng nhưng vẫn chưa vượt được đường MA20 (21.664,3 đồng), còn HPG (20.450 đồng) và VHM (60.400 đồng) chỉ giữ giá tham chiếu với lực cầu còn rất dè dặt. Việc giá VN-Index chưa thể chinh phục lại mốc MA20 chứng tỏ đây chỉ là các nhịp hồi kỹ thuật đơn lẻ, đòi hỏi nhà đầu tư phải cực kỳ chọn lọc cổ phiếu thay vì mua đuổi diện rộng.", "case_walkthrough": "Để hiểu rõ bài học về 'Râu nến' hôm nay, anh em hãy nhìn vào biểu đồ của MWG trong phiên 20/11/2026 khi cổ phiếu này giảm nhẹ -0,55% xuống 71.700 đồng. Trong phiên, có thời điểm phe Bán hoảng loạn đẩy giá MWG lùi xuống rất sâu, nhưng lực cầu bắt đáy xuất hiện đã kéo giá hồi phục trở lại về cuối phiên, tạo ra một 'râu nến dưới' (bóng nến dưới) tương đối rõ nét. Râu nến dưới này là minh chứng cho việc thị trường đã từ chối mức giá thấp và có dòng tiền sẵn sàng đỡ giá ở vùng hỗ trợ. Tuy nhiên, nếu soi kỹ bức tranh TA, giá đóng cửa 71.700 đồng của MWG vẫn nằm hoàn toàn dưới đường MA20 (73.620 đồng), đi kèm khối lượng giao dịch đạt 1,23 lần mức trung bình và RSI14 dừng ở mức 40,7. Điều này giải thích rằng mặc dù phe Mua đã có hành động 'rút chân' đỡ giá, nhưng quyền kiểm soát xu hướng ngắn hạn vẫn thuộc về phe Bán; do đó râu nến dưới ở đây chỉ là tín hiệu lực cầu chớm xuất hiện chứ chưa đủ xác nhận đảo chiều xu hướng để anh em vội vã xuống tiền.", "podcast_script": "Xin chào toàn thể các học viên F0 thân yêu của lớp học phân tích kỹ thuật và vĩ mô! Hôm nay là ngày 23 tháng 11 năm 2026, một ngày cuối tuần thư thái để chúng ta cùng nhau pha một tách cà phê, tĩnh tâm nhìn lại phiên giao dịch vừa qua ngày 20 tháng 11 năm 2026 và nạp thêm kiến thức thực chiến để không bị thị trường luộc chín.\n\nĐầu tiên, hãy cùng ngó qua bức tranh VN-Index. Trong phiên giao dịch ngày 20 tháng 11 năm 2026, chỉ số của chúng ta đóng cửa tại 1.688,79 điểm, giảm nhẹ 0,05 phần trăm. Chỉ số sức mạnh tương đối RSI14 đang ở mức 37,1 và giá vẫn nằm bên dưới đường trung bình động 20 ngày tức đường MA20. Nói một cách bình dân dại gái thì thị trường giống như một người vừa trải qua trận ốm, chân tay còn bủn rủn, lực hồi phục chưa đủ mạnh để bứt phá.\n\nNhìn ra thế giới, vĩ mô đang có những cơn gió ngược khá dữ dội. Chỉ số S&P 500 của Mỹ vừa trải qua một phiên bão táp khi bốc hơi 3,7 phần trăm, rớt xuống 6.910,39 điểm. Cùng lúc đó, giá vàng thế giới bị bán tháo liên tục, phá đáy khi giảm mạnh 4,62 phần trăm về mốc 3.515,4 USD trên oz. Nguyên nhân sâu xa là gì? Đó là do giới đầu tư toàn cầu lo ngại Cục Dự trữ Liên bang Mỹ Fed sẽ tiếp tục giữ mặt bằng lãi suất cao, cộng thêm làn sóng bán tháo các cổ phiếu công nghệ liên quan đến trí tuệ nhân tạo AI lan rộng.\n\nCơ chế này tác động thế nào tới túi tiền của anh em tại Việt Nam? Khi lãi suất USD duy trì ở mức cao, tỷ giá USD/VND chịu sức ép lớn, dù phiên vừa qua có hạ nhẹ 0,16 phần trăm xuống mốc 25.705 đồng. Tỷ giá neo cao khiến Ngân hàng Nhà nước khó có thể nới lỏng chính sách tiền tệ hay hạ thêm lãi suất. Chi phí vốn nợ bằng ngoại tệ của các doanh nghiệp nhập khẩu bị đẩy lên, trong khi dòng vốn ngoại trên sòng chứng khoán Việt Nam có xu hướng rút ròng để chảy về Mỹ trú ẩn. Chính áp lực này đã đè nặng lên nhóm Ngân hàng như Vietcombank giảm 1,18 phần trăm xuống 50.200 đồng với RSI chạm 23,1, MB Bank giảm 2,41 phần trăm xuống 18.250 đồng với RSI 29,3. Đặc biệt, cổ phiếu công nghệ FPT chịu ảnh hưởng từ làn sóng xả hàng nhóm AI thế giới, giảm 1,53 phần trăm xuống 45.000 đồng, đẩy RSI rớt thảm hại xuống 20,2 mặc dù thanh khoản vọt lên gấp 1,41 lần bình thường.\n\nTuy nhiên, vĩ mô không chỉ toàn màu xám. Những tin tức về địa chính trị như việc Tổng thống Trump nhắc nhở châu Âu về khoản tiền viện trợ Ukraine, hay các kịch bản hòa bình Nga Ukraine được đồn đoán có thể kết thúc chiến sự trong một tuần đang nhen nhóm hy vọng. Nếu chiến sự hạ nhiệt, chi phí vận tải và giá hàng hóa nguyên liệu thô toàn cầu sẽ giảm, giúp kiểm soát lạm phát và giải tỏa áp lực tỷ giá. Điều này sẽ mang lại làn gió mát cho nhóm Bán lẻ và Thép như Hòa Phát HPG đang dừng chân ở mốc 20.450 đồng, hay Vinhomes VHM giữ giá 60.400 đồng.\n\nQuay trở lại với diễn biến dòng tiền trên bảng điện. Dòng tiền thông minh trên thị trường hiện tại cực kỳ khôn ngoan và có tính phân hóa cao. Họ chủ động né tránh các mã đang rơi tự do như FPT, VCB hay MBB để tìm đến những cổ phiếu có nền giá khỏe hơn. Điển hình là cổ phiếu Chứng khoán SSI. Trong phiên vừa rồi, SSI đã bứt phá tăng 2,3 phần trăm lên mốc 20.000 đồng, chính thức vượt lên trên đường MA20 ở mức 19.890 đồng với RSI đạt 51,2 và khối lượng giao dịch đạt 1,32 lần mức trung bình. Đây là minh chứng rõ nhất cho việc dòng tiền cá mập chấp nhận mua đẩy giá lên ở nhóm cổ phiếu có tín hiệu kỹ thuật tích cực.\n\nBây giờ, chúng ta sẽ đến với bài học phân tích kỹ thuật của ngày hôm nay: Bài 2 - Râu nến hay còn gọi là bóng nến, dấu vết của sự từ chối giá. Anh em cứ hình dung râu nến giống như vết chân mà phe Mua hoặc phe Bán để lại trên chiến trường.\n\nHãy cùng soi cây nến của cổ phiếu Thế Giới Di Động MWG làm bài học minh họa. Đóng cửa phiên 20 tháng 11 năm 2026, MWG giảm nhẹ 0,55 phần trăm xuống 71.700 đồng với khối lượng giao dịch đạt 1,23 lần bình thường. Quan sát hình dáng cây nến MWG, anh em sẽ thấy một đường mảnh thò ra ở phía dưới thân nến, đó chính là râu nến dưới hay còn gọi là nến rút chân.\n\nBản chất đằng sau hành động giá này là gì? Trong phiên giao dịch, phe Bán đã hung hãn đạp giá MWG xuống rất sâu. Tuy nhiên, khi giá lùi về vùng thấp, lực cầu bắt đáy của phe Mua đã bất ngờ nhảy vào ngắm nghía và xuống tiền, kéo giá MWG phục hồi trở lại trước khi đóng cửa. Râu nến dưới kéo dài chính là dấu vết cho thấy mức giá thấp trong phiên đã bị phe Mua từ chối, nghĩa là có dòng tiền đỡ giá bên dưới.\n\nNhưng nghe này anh em F0, đừng thấy râu nến dưới rút chân mà đã vội vàng lao vào múc ngay! Hãy nhìn tổng thể: Giá đóng cửa 71.700 đồng của MWG vẫn đang nằm bên dưới đường MA20 ở mốc 73.620 đồng, và chỉ số RSI14 chỉ mới đạt 40,7. Điều này có nghĩa là phe Bán vẫn đang nắm quyền kiểm soát xu hướng ngắn hạn. Nhịp rút chân tạo râu nến dưới chỉ cho chúng ta biết lực bán bắt đầu suy yếu và có người nhảy vào đỡ giá, chứ chưa đủ căn cứ xác nhận MWG đã đảo chiều tăng giá.\n\nBài học rút ra là gì? Râu nến giúp anh em đọc vị được tâm lý giằng co giữa hai phe. Râu dưới dài chứng tỏ có lực mua đỡ giá, râu trên dài chứng tỏ lực bán chốt lời mạnh. Tuy nhiên, luôn phải kết hợp râu nến với đường trung bình MA20 và chỉ số RSI. Đừng vội vã bắt đáy khi giá vẫn nằm dưới MA20, hãy kiên nhẫn chờ đợi cổ phiếu tạo nền giá ổn định và xác nhận xu hướng.\n\nChúc anh em F0 có một kỳ nghỉ cuối tuần vui vẻ, nạp đầy năng lượng và chuẩn bị một tư duy vĩ mô sắc bén cho tuần giao dịch mới!", "mode": "gemini:gemini-3.6-flash"}, "vni_chart_rel_path": "./episodes/2026-11-23/vnindex.png", "lesson_chart_rel_path": "./episodes/2026-11-23/lesson_chart.png", "audio_rel_path": "./episodes/2026-11-23/podcast.mp3", "tiktok_rel_path": "./episodes/2026-11-23/tiktok_today.mp4"}, {"episode_id": "2026-11-22", "generated_at": "2026-11-22T22:58:07.168620+07:00", "generated_date_vn": "22/11/2026", "generated_time_vn": "22:58", "market_trade_date_vn": "20/11/2026", "is_weekend_or_closed": true, "vnindex": {"symbol": "VNINDEX", "name": "Chỉ số VN-Index", "sector": "Thị trường chung", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 1671.25, "high": 1689.18, "low": 1666.41, "close": 1688.79, "prev_close": 1689.62, "change": -0.83, "change_pct": -0.05, "volume": 521998819, "vol_ratio": 0.94, "ma20": 1730.89, "ma50": 1748.05, "rsi14": 37.1, "rsi_zone": "weak", "rsi_plain": "RSI 37 (Lực mua còn yếu)", "macd": -11.36, "macd_signal": -7.55, "support_20": 1675.08, "resistance_20": 1781.45, "candle": {"color": "green", "body_pct": 77.0, "upper_wick_pct": 1.7, "lower_wick_pct": 21.3, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, "stocks": [{"symbol": "FPT", "name": "FPT Corp", "sector": "Công nghệ", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 45600.0, "high": 46000.0, "low": 44650.0, "close": 45000.0, "prev_close": 45700.0, "change": -700.0, "change_pct": -1.53, "volume": 15727808, "vol_ratio": 1.41, "ma20": 50850.0, "ma50": 57302.62, "rsi14": 20.2, "rsi_zone": "oversold", "rsi_plain": "RSI 20 (Vùng quá bán - giá đã giảm khá sâu)", "macd": -3020.29, "macd_signal": -2701.56, "support_20": 45600.0, "resistance_20": 57800.0, "candle": {"color": "red", "body_pct": 44.4, "upper_wick_pct": 29.6, "lower_wick_pct": 25.9, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": true, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Giảm sâu", "status_tone": "bearish", "beginner_note": "Giá dưới MA20 và RSI thấp; chỉ nên quan sát chờ tạo đáy ổn định. Khối lượng hôm nay cao gấp 1.4x mức bình thường."}, {"symbol": "HPG", "name": "Hòa Phát", "sector": "Thép", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 20300.0, "high": 20500.0, "low": 20150.0, "close": 20450.0, "prev_close": 20450.0, "change": 0.0, "change_pct": 0.0, "volume": 15670017, "vol_ratio": 0.82, "ma20": 20995.0, "ma50": 20828.0, "rsi14": 42.0, "rsi_zone": "weak", "rsi_plain": "RSI 42 (Lực mua còn yếu)", "macd": -75.25, "macd_signal": 16.42, "support_20": 20300.0, "resistance_20": 21900.0, "candle": {"color": "green", "body_pct": 42.9, "upper_wick_pct": 14.3, "lower_wick_pct": 42.9, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "VCB", "name": "Vietcombank", "sector": "Ngân hàng", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 50200.0, "high": 50600.0, "low": 50000.0, "close": 50200.0, "prev_close": 50800.0, "change": -600.0, "change_pct": -1.18, "volume": 3909552, "vol_ratio": 0.78, "ma20": 53965.0, "ma50": 56140.0, "rsi14": 23.1, "rsi_zone": "oversold", "rsi_plain": "RSI 23 (Vùng quá bán - giá đã giảm khá sâu)", "macd": -1460.15, "macd_signal": -1123.4, "support_20": 50700.0, "resistance_20": 58400.0, "candle": {"color": "doji", "body_pct": 0.0, "upper_wick_pct": 66.7, "lower_wick_pct": 33.3, "is_doji": true, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Giảm sâu", "status_tone": "bearish", "beginner_note": "Giá dưới MA20 và RSI thấp; chỉ nên quan sát chờ tạo đáy ổn định."}, {"symbol": "TCB", "name": "Techcombank", "sector": "Ngân hàng", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 20450.0, "high": 21200.0, "low": 20150.0, "close": 21200.0, "prev_close": 20600.0, "change": 600.0, "change_pct": 2.91, "volume": 13213084, "vol_ratio": 0.95, "ma20": 21664.3, "ma50": 21786.32, "rsi14": 44.3, "rsi_zone": "weak", "rsi_plain": "RSI 44 (Lực mua còn yếu)", "macd": -246.92, "macd_signal": -134.16, "support_20": 20600.0, "resistance_20": 22901.0, "candle": {"color": "green", "body_pct": 71.4, "upper_wick_pct": 0.0, "lower_wick_pct": 28.6, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": true}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": false, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "SSI", "name": "Chứng khoán SSI", "sector": "Chứng khoán", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 19300.0, "high": 20000.0, "low": 19250.0, "close": 20000.0, "prev_close": 19550.0, "change": 450.0, "change_pct": 2.3, "volume": 25763478, "vol_ratio": 1.32, "ma20": 19890.0, "ma50": 19985.0, "rsi14": 51.2, "rsi_zone": "neutral", "rsi_plain": "RSI 51 (Cân bằng, chưa rõ xu hướng)", "macd": -1.96, "macd_signal": 27.31, "support_20": 18500.0, "resistance_20": 21000.0, "candle": {"color": "green", "body_pct": 93.3, "upper_wick_pct": 0.0, "lower_wick_pct": 6.7, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": true}, "signals": {"vol_spike": false, "ma20_cross_up": true, "macd_cross_up": false, "above_ma20": true, "above_ma50": true, "near_support": false, "near_resistance": false}, "status_label": "Tích cực", "status_tone": "bullish", "beginner_note": "Giá nằm trên đường trung bình 20 ngày (MA20), xu hướng ngắn hạn đang khỏe."}, {"symbol": "MWG", "name": "Thế Giới Di Động", "sector": "Bán lẻ", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 71500.0, "high": 71800.0, "low": 70500.0, "close": 71700.0, "prev_close": 72100.0, "change": -400.0, "change_pct": -0.55, "volume": 3191559, "vol_ratio": 1.23, "ma20": 73620.0, "ma50": 73318.1, "rsi14": 40.8, "rsi_zone": "weak", "rsi_plain": "RSI 41 (Lực mua còn yếu)", "macd": -447.55, "macd_signal": -196.58, "support_20": 71300.0, "resistance_20": 77200.0, "candle": {"color": "doji", "body_pct": 15.4, "upper_wick_pct": 7.7, "lower_wick_pct": 76.9, "is_doji": true, "is_hammer": true, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "VHM", "name": "Vinhomes", "sector": "Bất động sản", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 59500.0, "high": 60400.0, "low": 58900.0, "close": 60400.0, "prev_close": 60400.0, "change": 0.0, "change_pct": 0.0, "volume": 6242056, "vol_ratio": 1.14, "ma20": 62185.0, "ma50": 64776.0, "rsi14": 39.5, "rsi_zone": "weak", "rsi_plain": "RSI 40 (Lực mua còn yếu)", "macd": -1003.06, "macd_signal": -1015.63, "support_20": 59600.0, "resistance_20": 64900.0, "candle": {"color": "green", "body_pct": 60.0, "upper_wick_pct": 0.0, "lower_wick_pct": 40.0, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Yếu / Chờ", "status_tone": "bearish", "beginner_note": "Giá vẫn nằm dưới đường trung bình 20 ngày, lực hồi chưa mạnh."}, {"symbol": "MBB", "name": "MB Bank", "sector": "Ngân hàng", "source": "VNDirect", "trade_date": "2026-11-20", "trade_date_vn": "20/11/2026", "open": 18500.0, "high": 18550.0, "low": 18250.0, "close": 18250.0, "prev_close": 18700.0, "change": -450.0, "change_pct": -2.41, "volume": 13428478, "vol_ratio": 1.21, "ma20": 19185.0, "ma50": 19473.0, "rsi14": 29.3, "rsi_zone": "oversold", "rsi_plain": "RSI 29 (Vùng quá bán - giá đã giảm khá sâu)", "macd": -239.73, "macd_signal": -156.61, "support_20": 18500.0, "resistance_20": 19900.0, "candle": {"color": "red", "body_pct": 83.3, "upper_wick_pct": 16.7, "lower_wick_pct": 0.0, "is_doji": false, "is_hammer": false, "is_shooting_star": false, "is_bullish_engulfing": false}, "signals": {"vol_spike": false, "ma20_cross_up": false, "macd_cross_up": false, "above_ma20": false, "above_ma50": false, "near_support": true, "near_resistance": false}, "status_label": "Giảm sâu", "status_tone": "bearish", "beginner_note": "Giá dưới MA20 và RSI thấp; chỉ nên quan sát chờ tạo đáy ổn định."}], "macro": [{"symbol": "^GSPC", "label": "S&P 500 (Mỹ)", "unit": "điểm", "decimals": 2, "close": 6910.39, "change_pct": -3.7, "date_vn": "20/11/2026"}, {"symbol": "GC=F", "label": "Vàng Thế Giới", "unit": "USD/oz", "decimals": 1, "close": 3515.4, "change_pct": -4.62, "date_vn": "20/11/2026"}, {"symbol": "USDVND=X", "label": "Tỷ giá USD/VND", "unit": "VND", "decimals": 0, "close": 25705.0, "change_pct": -0.16, "date_vn": "22/11/2026"}, {"symbol": "BTC-USD", "label": "Bitcoin", "unit": "USD", "decimals": 0, "close": 60819.0, "change_pct": 1.21, "date_vn": "22/11/2026"}], "news": [{"title": "Vàng bạc liên tục phá đáy, hai “cá mập” bất ngờ hành động trái ngược", "summary": "Theo Reuters, đà bán tháo kim loại quý diễn ra trong bối cảnh kỳ vọng Fed tiếp tục tăng lãi suất ngày càng mạnh, đồng USD neo ở vùng cao và làn sóng bán tháo cổ phiếu liên quan đến trí tuệ nhân tạo (AI) lan rộng.", "link": "https://cafef.vn/vang-bac-lien-tuc-pha-day-hai-ca-map-bat-ngo-hanh-dong-trai-nguoc-188261121102002294.chn", "source": "CafeF Chứng khoán", "category": "Chứng khoán", "lang": "vi", "published_iso": "2026-11-21T10:20:00+07:00", "published_vn": "10:20 21/11", "score": 17, "beginner_meaning": "Lãi suất là 'giá của đồng tiền'. Khi lãi suất tăng, vay vốn đắt đỏ hơn và tiền gửi tiết kiệm hấp dẫn hơn nên chứng khoán thường chịu áp lực; ngược lại lãi suất giảm giúp tiền rẻ chảy vào cổ phiếu.", "impact_tone": "neutral"}, {"title": "Tổng thống Mỹ Trump nhắc châu Âu về khoản tiền khổng lồ chi cho Ukraine", "summary": "Tổng thống Ukraine Volodymyr Zelensky cho biết, trong tuần này, Tổng thống Mỹ Donald Trump đã nói với các nhà lãnh đạo châu Âu rằng họ đang chi rất nhiều tiền cho cuộc xung đột ở Ukraine. Do đó, nếu đạt được thỏa thuận hòa bình với Nga, họ có thể sử dụng số ti...", "link": "https://cafef.vn/tong-thong-my-trump-nhac-chau-au-ve-khoan-tien-khong-lo-chi-cho-ukraine-188261122124712656.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T13:36:00+07:00", "published_vn": "13:36 22/11", "score": 14, "beginner_meaning": "Bất ổn địa chính trị hoặc thuế quan thường đẩy giá vàng và dầu biến động mạnh, khiến nhà đầu tư có xu hướng tìm nơi trú ẩn an toàn thay vì mạo hiểm.", "impact_tone": "caution"}, {"title": "Mâu thuẫn Mỹ - Trung nảy sinh ngay sau khi Tổng thống Trump tới Thâm Quyến", "summary": "Bộ Thương mại Trung Quốc vừa yêu cầu Ủy ban Truyền thông Liên bang Mỹ (FCC) rút lại lệnh cấm các nhà mạng Trung Quốc tiếp cận trực tiếp số điện thoại của Mỹ, đồng thời tuyên bố sẽ triển khai biện pháp bảo vệ lợi ích của mình.", "link": "https://cafef.vn/mau-thuan-my-trung-nay-sinh-ngay-sau-khi-tong-thong-trump-toi-tham-quyen-188261122185337491.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T21:00:00+07:00", "published_vn": "21:00 22/11", "score": 11, "beginner_meaning": "Tin tức vĩ mô giúp bạn hiểu bối cảnh dòng tiền và tâm lý chung của doanh nghiệp trong nước lẫn quốc tế.", "impact_tone": "neutral"}, {"title": "Liên minh châu Âu tăng tốc viện trợ cho Ukraine sau thượng đỉnh Mỹ - Trung - Nga", "summary": "Liên minh châu Âu (EU) vừa thông qua 2 quyết định cho phép cung cấp thêm 1 tỷ euro viện trợ quân sự cho Ukraine, thông qua Cơ chế Hòa bình châu Âu (EPF).", "link": "https://cafef.vn/lien-minh-chau-au-tang-toc-vien-tro-cho-ukraine-sau-thuong-dinh-my-trung-nga-188261122154111736.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T18:00:00+07:00", "published_vn": "18:00 22/11", "score": 11, "beginner_meaning": "Tin tức vĩ mô giúp bạn hiểu bối cảnh dòng tiền và tâm lý chung của doanh nghiệp trong nước lẫn quốc tế.", "impact_tone": "neutral"}, {"title": "Góc nhìn chuyên gia: Nhịp giảm là cơ hội giải ngân chọn lọc, 3 nhóm cổ phiếu tiềm năng kỳ vọng đón dòng tiền mới", "summary": "Các chuyên gia cho rằng mặt bằng lãi suất, áp lực bán ròng của khối ngoại và những bất ổn trên thị trường quốc tế đang khiến dòng tiền duy trì trạng thái thận trọng.", "link": "https://cafef.vn/goc-nhin-chuyen-gia-nhip-giam-la-co-hoi-giai-ngan-chon-loc-3-nhom-co-phieu-tiem-nang-ky-vong-don-dong-tien-moi-188261122141751308.chn", "source": "CafeF Chứng khoán", "category": "Chứng khoán", "lang": "vi", "published_iso": "2026-11-22T14:14:00+07:00", "published_vn": "14:14 22/11", "score": 11, "beginner_meaning": "Lãi suất là 'giá của đồng tiền'. Khi lãi suất tăng, vay vốn đắt đỏ hơn và tiền gửi tiết kiệm hấp dẫn hơn nên chứng khoán thường chịu áp lực; ngược lại lãi suất giảm giúp tiền rẻ chảy vào cổ phiếu.", "impact_tone": "neutral"}, {"title": "Ông Zelensky: Ukraine cần văn bản cam kết an ninh kiểu NATO", "summary": "Tổng thống Zelensky tuyên bố muốn thấy những cam kết bằng văn bản về các đảm bảo an ninh kiểu NATO dành cho Ukraine.", "link": "https://vnexpress.net/ong-zelensky-ukraine-can-van-ban-cam-ket-an-ninh-kieu-nato-5147574.html", "source": "VnExpress Thế giới", "category": "Chính trị - Địa chính trị", "lang": "vi", "published_iso": "2026-11-22T09:37:08+07:00", "published_vn": "09:37 22/11", "score": 9, "beginner_meaning": "Tin tức vĩ mô giúp bạn hiểu bối cảnh dòng tiền và tâm lý chung của doanh nghiệp trong nước lẫn quốc tế.", "impact_tone": "neutral"}, {"title": "Nga tuyên bố là nước đầu tiên trên thế giới làm được điều này bất chấp lệnh trừng phạt", "summary": "Tập đoàn Máy bay Thống nhất (UAC) vừa kỷ niệm 20 năm thành lập công ty.", "link": "https://cafef.vn/nga-tuyen-bo-la-nuoc-dau-tien-tren-the-gioi-lam-duoc-dieu-nay-bat-chap-lenh-trung-phat-188261122172935482.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T19:00:00+07:00", "published_vn": "19:00 22/11", "score": 8, "beginner_meaning": "Bất ổn địa chính trị hoặc thuế quan thường đẩy giá vàng và dầu biến động mạnh, khiến nhà đầu tư có xu hướng tìm nơi trú ẩn an toàn thay vì mạo hiểm.", "impact_tone": "caution"}, {"title": "Tổng thống Mỹ Trump đăng loạt ảnh tại APEC, gọi lãnh đạo Nga - Trung là 'bạn'", "summary": "Tổng thống Mỹ Donald Trump đã đăng tải một loạt ảnh chụp cùng Tổng thống Nga Vladimir Putin và Chủ tịch Trung Quốc Tập Cận Bình sau hội nghị thượng đỉnh tại Thâm Quyến, trong đó ông gọi cả hai nhà lãnh đạo này là “những người bạn”.", "link": "https://cafef.vn/tong-thong-my-trump-dang-loat-anh-tai-apec-goi-lanh-dao-nga-trung-la-ban-188261122153939935.chn", "source": "CafeF Tài chính Quốc tế", "category": "Vĩ mô Quốc tế", "lang": "vi", "published_iso": "2026-11-22T17:39:00+07:00", "published_vn": "17:39 22/11", "score": 8, "beginner_meaning": "Tin tức vĩ mô giúp bạn hiểu bối cảnh dòng tiền và tâm lý chung của doanh nghiệp trong nước lẫn quốc tế.", "impact_tone": "neutral"}], "lesson": {"id": 1, "slug": "candlestick-basics", "title": "Bài 1: Nến Nhật — Cuộc chiến giữa Phe Mua và Phe Bán", "focus_indicator": "candle", "concept_plain": "Mỗi cây nến đại diện cho 1 ngày giao dịch. Thân nến XANH nghĩa là cuối ngày giá đóng cửa CAO hơn lúc mở cửa (phe Mua thắng). Thân nến ĐỎ nghĩa là đóng cửa THẤP hơn lúc mở (phe Bán thắng). Thân nến càng dài, phe thắng càng áp đảo.", "how_to_spot": "Nhìn thân nến ngày cuối cùng bên phải biểu đồ: màu sắc và độ dài thân so với các ngày trước.", "quiz": {"question": "Một cây nến có thân màu XANH rất dài cho thấy điều gì trong phiên hôm đó?", "options": ["Phe Mua áp đảo, đẩy giá đóng cửa cao hơn nhiều so với giá mở cửa", "Không có ai giao dịch cổ phiếu đó", "Giá cổ phiếu chắc chắn sẽ giảm vào ngày mai"], "answer_index": 0, "explanation": "Thân xanh dài thể hiện lực cầu (mua) rất mạnh trong phiên, kiểm soát từ lúc mở cửa đến khi đóng cửa."}}, "case_stock_symbol": "SSI", "briefing": {"headline": "Bản tin Vui – Vĩ mô & Lớp học Nến Nhật ngày 22/11/2026 (Phiên 20/11/2026)", "intro_note": "Chào mừng người anh em đến với Podcast Tài chính phiên bản vui vẻ tối Chủ Nhật 22/11/2026! Cuối tuần sàn nghỉ giao dịch nên mình cùng nhâm nhi trà đá, điểm tin thế giới, soi lại phiên 20/11/2026 và mổ xẻ cây nến xanh mập mạp của SSI nhé.", "news_insights": [{"title": "Vàng bạc 'trượt vỏ chuối', S&P 500 đỏ lửa vì nỗi lo lãi suất Mỹ", "so_what": "Vàng thế giới giảm 4,62% xuống 3.515,4 USD/oz, còn S&P 500 tụt 3,7% về 6.910,39 điểm do giới đầu tư sợ Fed lại siết lãi suất và cổ phiếu AI bị chốt lời. Nói nôm na, khi tiền gửi USD hứa hẹn đắt giá hơn thì dân tình tạm rút bớt tiền khỏi các tài sản rủi ro.", "tone": "caution"}, {"title": "Mỹ - Trung lại 'cà khịa' chuyện viễn thông ngay sau khi ông Trump tới Thâm Quyến", "so_what": "Bộ Thương mại Trung Quốc vừa yêu cầu Mỹ gỡ lệnh cấm nhà mạng viễn thông, dọa sẽ có biện pháp đáp trả. Cứ hễ hai ông lớn gầm ghè nhau là dòng tiền toàn cầu lại nín thở ngồi xem chứ chưa dám bung lụa.", "tone": "caution"}, {"title": "Châu Âu bơm thêm 1 tỷ euro viện trợ cho Ukraine", "so_what": "EU vừa chốt thêm gói viện trợ quân sự trong khi Mỹ thúc giục đàm phán hòa bình. Bàn cờ địa chính trị còn lùng bùng khiến giá năng lượng và tâm lý phòng thủ vẫn được nhắc tới thường xuyên.", "tone": "neutral"}, {"title": "Thị trường Việt Nam: Khối ngoại bán ròng khiến dòng tiền hơi rón rén", "so_what": "Các chuyên gia khuyên nhịp giảm này hợp để đi chợ chọn lọc từ từ chứ đừng thấy giảm là nhắm mắt tất tay bắt dao rơi!", "tone": "neutral"}], "case_walkthrough": "Liếc ngay sang cây nến cuối cùng bên phải biểu đồ SSI phiên 20/11/2026: đúng kiểu 'nói là làm'! Mở cửa 19.300 đồng, phe Mua đẩy một mạch lên đóng cửa ngay đỉnh 20.000 đồng (+2,30%), thân nến xanh chiếm tới 93,3% và không thèm rụt đầu chút nào. Nhờ cú kéo dứt khoát này, SSI nhảy vọt qua cả đường MA20 (19.890 đồng) lẫn MA50 (19.985 đồng) với khối lượng gấp 1,32 lần ngày thường!", "podcast_script": "Alo alo, xin chào người anh em thiện lành! Chào mừng bạn quay lại với Podcast điểm tin kinh tế và học lỏm Phân tích kỹ thuật, phiên bản tối Chủ Nhật ngày 22 tháng 11 năm 2026. Hôm nay cuối tuần bảng điện tắt đèn đi ngủ rồi, nên anh em mình cùng làm ngụm trà, vừa nghe tin nóng thế giới vừa soi lại phiên giao dịch ngày 20 tháng 11 thật nhẹ đầu nhé!\n\nMở đầu là phần một: Chuyện thế giới cuối tuần có gì vui? Tin giật gân nhất là vàng và chứng khoán Mỹ đồng loạt trượt vỏ chuối! Chỉ số S&P 500 của Mỹ giảm 3 phẩy 7 phần trăm về 6910 phẩy 39 điểm khi nhóm cổ phiếu trí tuệ nhân tạo bị bán tháo, còn giá vàng thế giới thì rớt 4 phẩy 62 phần trăm xuống 3515 phẩy 4 đô la một ounce. Lý do nghe quen lắm: dân tình lại lo Cục Dự trữ Liên bang Mỹ giữ lãi suất cao. Bạn cứ hình dung lãi suất giống như tiền thuê nhà vậy; tiền thuê đắt lên thì người ta ôm tiền mặt gửi tiết kiệm cho chắc ăn, chứ ngại mang đi đánh chứng khoán hay ôm vàng. Trong khi đó ở mặt trận chính trị, Tổng thống Donald Trump vừa ghé Thâm Quyến gặp gỡ lãnh đạo Nga và Trung Quốc, ấy thế mà ngay sau đó Mỹ với Trung lại cà khịa nhau chuyện cấm nhà mạng viễn thông, còn Liên minh châu Âu thì bơm thêm 1 tỷ euro cho Ukraine. Hai ông lớn còn gầm ghè nhau thì dòng tiền quốc tế vẫn kiểu vừa đi vừa ngó thôi bạn ạ!\n\nChuyển sang phần hai: Soi nhanh chứng khoán Việt Nam. Phiên gần nhất ngày 20 tháng 11, cụ VN-Index đóng cửa ở 1688 phẩy 79 điểm, giảm nhẹ 0 phẩy 05 phần trăm. Nói vui thì cụ Index đang đứng lấp ló ngay mép sàn hỗ trợ 1675 điểm, nằm dưới đường trung bình 20 ngày ở 1730 phẩy 89 điểm, chỉ số RSI mới có 37 nên sức khỏe vẫn hơi yếu, chưa chạy nhanh được đâu. Nhìn sang rổ cổ phiếu quen mặt: mấy anh lớn như MBB giảm 2 phẩy 41 phần trăm về 18250 đồng, FPT giảm 1 phẩy 53 phần trăm về 45000 đồng, hay Vietcombank về 50200 đồng, đều đang có RSI rơi tọt xuống vùng 20 đến 29 — tức là vùng quá bán, giảm hơi lố đà rồi nhưng người mới thì cứ đứng ngoài xem chứ đừng vội lao vào bắt dao rơi nhé. Điểm sáng rực rỡ nhất phiên là hai anh bạn SSI tăng 2 phẩy 3 phần trăm lên 20000 đồng và Techcombank tăng 2 phẩy 91 phần trăm lên 21200 đồng, trông khỏe khoắn hơn hẳn mặt bằng chung.\n\nVà bây giờ là phần ba thú vị nhất: Mỗi ngày một chiêu Phân tích kỹ thuật! Hôm nay mình học Bài 1: Nến Nhật — cuộc vật lộn giữa Phe Mua và Phe Bán. Bạn cứ coi mỗi cây nến là tỷ số trận bóng trong một ngày. Mở cửa giá thấp mà đóng cửa giá cao hơn, cây nến mặc áo Xanh: Phe Mua thắng! Ngược lại đóng cửa thấp hơn mở cửa thì mặc áo Đỏ: Phe Bán thắng! Thân áo càng mập càng dài thì phe thắng càng áp đảo. Bây giờ bạn liếc mắt sang ảnh biểu đồ mã SSI trên màn hình nhé: cây nến cuối cùng bên phải phiên 20 tháng 11 đúng chuẩn lực sĩ mặc áo xanh! Mở cửa 19300 đồng, phe Mua đẩy thẳng một mạch lên đóng cửa ngay mức cao nhất 20000 đồng, thân nến mập ú chiếm tới hơn 93 phần trăm chiều dài cây nến, chẳng có chút râu trên nào bị bán dội xuống cả. Cú đẩy uy tín này giúp SSI nhảy tót qua cả hai đường trung bình 20 ngày và 50 ngày, kèm khối lượng giao dịch cao gấp 1 phẩy 32 lần ngày thường luôn!\n\nNghe xong rồi bạn nhớ lướt xuống bấm ngay câu hỏi trắc nghiệm nhanh bên dưới để xem mình tốt nghiệp Bài 1 chưa nhé! Chúc bạn tối Chủ Nhật thật thư giãn, hẹn gặp lại vào 6 giờ 30 tối ngày mai với bài học soi Râu nến cực kỳ hay ho. Bye bye!", "mode": "antigravity_agent"}, "vni_chart_rel_path": "./episodes/2026-11-22/vnindex.png", "lesson_chart_rel_path": "./episodes/2026-11-22/lesson_chart.png", "audio_rel_path": "./episodes/2026-11-22/podcast.mp3"}];
+  </script>
+  <script>
+    const episodes = window.__ARCHIVE_DATA__ || [];
+    const epSelect = document.getElementById("episodeSelect");
+    const audioEl = document.getElementById("audioEl");
+    const playBtn = document.getElementById("playBtn");
+    const seekBar = document.getElementById("seekBar");
+    const curTimeEl = document.getElementById("curTime");
+    const durTimeEl = document.getElementById("durTime");
+    const speedBtn = document.getElementById("speedBtn");
+    const scriptBox = document.getElementById("scriptBox");
+    const speeds = [1.0, 1.25, 1.5];
+    let speedIdx = 0;
+
+    function fmtTime(sec) {
+      if (!isFinite(sec)) return "00:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function fmtVnd(val, isIndex) {
+      if (val == null) return "-";
+      return isIndex
+        ? Number(val).toLocaleString("vi-VN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : Number(val).toLocaleString("vi-VN", { maximumFractionDigits: 0 });
+    }
+
+    function clsPct(p) {
+      if (p > 0) return "up";
+      if (p < 0) return "down";
+      return "flat";
+    }
+
+    function renderEpisode(ep) {
+      if (!ep) return;
+      document.getElementById("subHeader").innerHTML =
+        `Cập nhật lúc ${ep.generated_time_vn} ngày ${ep.generated_date_vn} · ` +
+        `<span class="pill-note">Dữ liệu phiên ${ep.market_trade_date_vn}</span>`;
+
+      document.getElementById("introNote").textContent = ep.briefing.intro_note || "";
+      scriptBox.textContent = ep.briefing.podcast_script || "";
+
+      // Audio
+      audioEl.pause();
+      audioEl.src = ep.audio_rel_path;
+      audioEl.load();
+      playBtn.textContent = "▶ Nghe bản tin";
+      seekBar.value = 0;
+      curTimeEl.textContent = "00:00";
+
+      // TikTok video preview
+      const tiktokBox = document.getElementById("tiktokBox");
+      const tiktokVideo = document.getElementById("tiktokVideo");
+      if (ep.tiktok_rel_path) {
+        tiktokVideo.src = ep.tiktok_rel_path;
+        tiktokBox.style.display = "block";
+      } else {
+        tiktokBox.style.display = "none";
+      }
+
+      // Lesson
+      const lesson = ep.lesson;
+      document.getElementById("lessonTitle").textContent = lesson.title;
+      document.getElementById("lessonConcept").textContent = lesson.concept_plain;
+      document.getElementById("caseWalkthrough").innerHTML =
+        `<strong>👀 Nhìn vào biểu đồ thật (${ep.case_stock_symbol || "VNINDEX"}):</strong> ${ep.briefing.case_walkthrough || ""}`;
+
+      const lessonChartWrap = document.getElementById("lessonChartWrap");
+      lessonChartWrap.innerHTML = ep.lesson_chart_rel_path
+        ? `<img class="chart-img" src="${ep.lesson_chart_rel_path}" alt="Biểu đồ bài học TA" />`
+        : "";
+
+      // Quiz
+      const q = lesson.quiz;
+      document.getElementById("quizQuestion").textContent = q.question;
+      const optBox = document.getElementById("quizOptions");
+      const expBox = document.getElementById("quizExplain");
+      optBox.innerHTML = "";
+      expBox.style.display = "none";
+      expBox.textContent = "💡 Giải thích: " + q.explanation;
+
+      q.options.forEach((optText, idx) => {
+        const b = document.createElement("button");
+        b.className = "quiz-opt";
+        b.textContent = optText;
+        b.onclick = () => {
+          Array.from(optBox.children).forEach((child, cIdx) => {
+            child.classList.remove("correct", "wrong");
+            if (cIdx === q.answer_index) child.classList.add("correct");
+            else if (cIdx === idx) child.classList.add("wrong");
+          });
+          expBox.style.display = "block";
+        };
+        optBox.appendChild(b);
+      });
+
+      // Macro grid
+      const macroGrid = document.getElementById("macroGrid");
+      const vni = ep.vnindex;
+      let macroHtml = `
+        <div class="macro-item">
+          <div class="macro-label">VN-Index (${vni.trade_date_vn})</div>
+          <div class="macro-val">${fmtVnd(vni.close, true)}</div>
+          <div class="${clsPct(vni.change_pct)}">${vni.change_pct > 0 ? "+" : ""}${vni.change_pct.toFixed(2)}%</div>
+        </div>
+      `;
+      (ep.macro || []).forEach(m => {
+        if (m.close == null) return;
+        macroHtml += `
+          <div class="macro-item">
+            <div class="macro-label">${m.label}</div>
+            <div class="macro-val">${Number(m.close).toLocaleString("vi-VN")}</div>
+            <div class="${clsPct(m.change_pct)}">${m.change_pct > 0 ? "+" : ""}${m.change_pct.toFixed(2)}%</div>
+          </div>
+        `;
+      });
+      macroGrid.innerHTML = macroHtml;
+
+      document.getElementById("vniChartWrap").innerHTML = ep.vni_chart_rel_path
+        ? `<img class="chart-img" src="${ep.vni_chart_rel_path}" alt="Biểu đồ VN-Index" />`
+        : "";
+
+      // Watchlist
+      const tbody = document.getElementById("watchlistBody");
+      tbody.innerHTML = (ep.stocks || []).map(s => `
+        <tr>
+          <td><strong>${s.symbol}</strong><br/><span style="font-size:0.75rem;color:#94a3b8;">${s.name}</span></td>
+          <td>${fmtVnd(s.close, false)} đ</td>
+          <td class="${clsPct(s.change_pct)}"><strong>${s.change_pct > 0 ? "+" : ""}${s.change_pct.toFixed(2)}%</strong></td>
+          <td>${s.vol_ratio.toFixed(1)}x TB</td>
+          <td>
+            <span class="badge ${s.status_tone}">${s.status_label}</span>
+            <div style="font-size:0.82rem;color:#cbd5e1;margin-top:4px;">${s.beginner_note}</div>
+            <div style="font-size:0.76rem;color:#94a3b8;margin-top:2px;">${s.rsi_plain}</div>
+          </td>
+        </tr>
+      `).join("");
+
+      // News
+      const newsList = document.getElementById("newsList");
+      const insights = ep.briefing.news_insights;
+      if (insights && insights.length) {
+        newsList.innerHTML = insights.map(n => `
+          <div class="news-item ${n.tone || 'neutral'}">
+            <div class="news-title">${n.title}</div>
+            <div class="news-meaning"><strong>Vậy thì sao?</strong> ${n.so_what}</div>
+          </div>
+        `).join("");
+      } else {
+        newsList.innerHTML = (ep.news || []).map(n => `
+          <div class="news-item ${n.impact_tone || 'neutral'}">
+            <div class="news-meta">${n.source} · ${n.category} · ${n.published_vn}</div>
+            <div class="news-title"><a href="${n.link}" target="_blank" rel="noopener">${n.title}</a></div>
+            <div class="news-meaning"><strong>Ý nghĩa cho người mới:</strong> ${n.beginner_meaning}</div>
+          </div>
+        `).join("");
+      }
+    }
+
+    // Populate selector
+    episodes.forEach((ep, idx) => {
+      const opt = document.createElement("option");
+      opt.value = idx;
+      opt.textContent = `${ep.generated_date_vn} (${ep.generated_time_vn}) — ${ep.lesson.title.split(":")[0]}`;
+      epSelect.appendChild(opt);
+    });
+    epSelect.onchange = () => renderEpisode(episodes[Number(epSelect.value)]);
+
+    playBtn.onclick = () => {
+      if (audioEl.paused) { audioEl.play(); playBtn.textContent = "⏸ Tạm dừng"; }
+      else { audioEl.pause(); playBtn.textContent = "▶ Nghe bản tin"; }
+    };
+    document.getElementById("back15Btn").onclick = () => { audioEl.currentTime = Math.max(0, audioEl.currentTime - 15); };
+    document.getElementById("fwd15Btn").onclick = () => { audioEl.currentTime = Math.min(audioEl.duration || 0, audioEl.currentTime + 15); };
+    speedBtn.onclick = () => {
+      speedIdx = (speedIdx + 1) % speeds.length;
+      audioEl.playbackRate = speeds[speedIdx];
+      speedBtn.textContent = `Tốc độ: ${speeds[speedIdx].toFixed(2).replace(".00", ".0")}x`;
+    };
+    document.getElementById("toggleScriptBtn").onclick = () => {
+      scriptBox.style.display = scriptBox.style.display === "block" ? "none" : "block";
+    };
+    audioEl.ontimeupdate = () => {
+      curTimeEl.textContent = fmtTime(audioEl.currentTime);
+      durTimeEl.textContent = fmtTime(audioEl.duration);
+      if (audioEl.duration) seekBar.value = (audioEl.currentTime / audioEl.duration) * 100;
+    };
+    audioEl.onloadedmetadata = () => { durTimeEl.textContent = fmtTime(audioEl.duration); };
+    audioEl.onended = () => { playBtn.textContent = "▶ Nghe lại"; };
+    seekBar.oninput = () => {
+      if (audioEl.duration) audioEl.currentTime = (seekBar.value / 100) * audioEl.duration;
+    };
+
+    if (episodes.length > 0) renderEpisode(episodes[0]);
+  </script>
+</body>
+</html>

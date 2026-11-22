@@ -1,0 +1,13 @@
+requests>=2.31.0
+pandas>=2.2.0
+numpy>=2.0.0
+matplotlib>=3.9.0
+mplfinance>=0.12.10b0
+six>=1.16.0
+feedparser>=6.0.11
+edge-tts>=7.0.0
+gTTS>=2.5.0
+imageio-ffmpeg>=0.5.0
+yfinance>=0.2.50
+beautifulsoup4>=4.12.0
+google-genai>=1.0.0
