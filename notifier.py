@@ -23,6 +23,8 @@ def send_daily_email(
     audio_path: Path | None = None,
     chart_paths: list[Path] | None = None,
     video_path: Path | None = None,
+    ta_file_path: Path | None = None,
+    ta_attachment_name: str | None = None,
 ) -> bool:
     """Send a comprehensive, beginner-friendly daily briefing email with charts and MP3 attached."""
     if not (SMTP_USER and SMTP_PASS and NOTIFY_EMAIL):
@@ -100,6 +102,24 @@ def send_daily_email(
             f"<ul style='padding-left:18px;font-size:13.5px;background:#fefce8;padding-top:10px;padding-bottom:10px;border-radius:10px;'>{uni_items}</ul>"
         )
 
+    en = briefing.get("english_summary") or {}
+    en_html = ""
+    if en:
+        vocab_items = "".join(
+            f"<li><strong>{v.get('term','')}</strong> ({v.get('vn','')}): {v.get('meaning','')}</li>"
+            for v in (en.get("vocab") or [])
+        )
+        en_html = (
+            "<h3 style='color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:4px;'>"
+            "🇬🇧 5. Bản Tiếng Anh Cơ Bản &amp; Từ Vựng (English Recap)</h3>"
+            f"<div style='background:#eff6ff;padding:12px;border-radius:10px;font-size:13.5px;border-left:4px solid #2563eb;'>"
+            f"<div><strong>{en.get('headline_en','')}</strong></div>"
+            f"<p style='margin:6px 0;'>{en.get('market_summary_en','')}</p>"
+            f"<p style='margin:6px 0;'><em>TA Note:</em> {en.get('ta_lesson_en','')}</p>"
+            f"{f'<ul style=\"padding-left:18px;margin:6px 0;\">{vocab_items}</ul>' if vocab_items else ''}"
+            "</div>"
+        )
+
     site_cta = (
         f'<p style="margin:20px 0;"><a href="{PUBLIC_SITE_URL}" '
         f'style="background:#0284c7;color:#ffffff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">'
@@ -140,8 +160,10 @@ def send_daily_email(
 
       {uni_html}
 
+      {en_html}
+
       {site_cta}
-      <p style="font-size:13px;color:#64748b;margin-top:16px;">📎 <strong>Đính kèm sẵn ngay trong email:</strong> file nghe <strong>podcast.mp3</strong> (giọng nam miền Bắc nhí nhảnh) và <strong>2 ảnh biểu đồ chú thích</strong> để bạn xem &amp; nghe ngay trên điện thoại.</p>
+      <p style="font-size:13px;color:#64748b;margin-top:16px;">📎 <strong>Đính kèm sẵn ngay trong email:</strong> file nghe <strong>podcast.mp3</strong> (giọng nam miền Bắc nhí nhảnh), <strong>file tài liệu TA song ngữ (.html)</strong> mở xem offline cả chữ lẫn hình, và <strong>2 ảnh biểu đồ chú thích</strong>.</p>
     </div>
     """
 
@@ -169,6 +191,14 @@ def send_daily_email(
                 subtype="png",
                 filename=chart_p.name,
             )
+
+    if ta_file_path and ta_file_path.exists():
+        msg.add_attachment(
+            ta_file_path.read_bytes(),
+            maintype="text",
+            subtype="html",
+            filename=ta_attachment_name or ta_file_path.name,
+        )
 
     if video_path and video_path.exists() and video_path.stat().st_size <= 15 * 1024 * 1024:
         msg.add_attachment(

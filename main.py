@@ -22,6 +22,7 @@ from news_fetcher import fetch_daily_news
 from notifier import send_daily_email
 from script_writer import build_daily_briefing
 from ta_curriculum import select_lesson_and_case_study
+from ta_file_generator import generate_ta_lesson_file
 from tiktok_generator import render_tiktok_video
 from web_builder import build_web_site
 
@@ -131,7 +132,7 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
     print("[5/7] Synthesizing podcast audio...")
     audio_path = generate_podcast_audio(briefing["podcast_script"], ep_dir)
 
-    print("[6/7] Rendering 9:16 TikTok/Shorts video...")
+    print("[6/7] Rendering 9:16 TikTok/Shorts video & bilingual TA study file...")
     tiktok_rel = ""
     try:
         tiktok_path = ep_dir / "tiktok_today.mp4"
@@ -139,6 +140,16 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
         tiktok_rel = f"./episodes/{today_iso}/tiktok_today.mp4"
     except Exception as exc:
         print(f"[WARN] TikTok video render skipped: {exc}")
+
+    lesson_chart_file = ep_dir / "lesson_chart.png"
+    ta_file_path = ep_dir / "ta_lesson.html"
+    generate_ta_lesson_file(
+        context,
+        briefing,
+        lesson_chart_file if lesson_chart_file.exists() else None,
+        ta_file_path,
+    )
+    ta_file_rel = f"./episodes/{today_iso}/ta_lesson.html"
 
     episode_record = {
         "episode_id": today_iso,
@@ -158,6 +169,7 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
         "lesson_chart_rel_path": context["lesson_chart_rel_path"],
         "audio_rel_path": f"./episodes/{today_iso}/{audio_path.name}",
         "tiktok_rel_path": tiktok_rel,
+        "ta_file_rel_path": ta_file_rel,
     }
 
     existing = [ep for ep in _load_existing_episodes() if ep.get("episode_id") != today_iso]
@@ -171,6 +183,7 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
     charts_to_attach = [ep_dir / "vnindex.png"]
     if (ep_dir / "lesson_chart.png").exists():
         charts_to_attach.append(ep_dir / "lesson_chart.png")
+    ta_attachment_name = f"TA_Bai_{context['lesson']['id']}_{today_iso}.html"
     send_daily_email(
         briefing,
         {
@@ -182,6 +195,8 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
         context["lesson"],
         audio_path,
         charts_to_attach,
+        ta_file_path=ta_file_path,
+        ta_attachment_name=ta_attachment_name,
     )
     print(f"[DONE] Web app ready at: {index_path}")
     return index_path

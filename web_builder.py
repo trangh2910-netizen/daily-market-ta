@@ -269,6 +269,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <p id="lessonConcept" style="margin:8px 0;"></p>
       <div id="caseWalkthrough" style="background:#1e293b;padding:12px;border-radius:10px;font-size:0.92rem;"></div>
       <div id="lessonChartWrap" style="margin-top:12px;"></div>
+      <div id="taFileWrap" style="margin-top:10px;display:none;">
+        <a id="taFileLink" href="#" target="_blank" rel="noopener" class="btn" style="display:inline-block;text-decoration:none;background:#0f172a;border-color:#38bdf8;">📘 Mở / Tải File Bài Học TA (Song ngữ Việt–Anh)</a>
+      </div>
       <div class="quiz-box">
         <div style="font-weight:700;font-size:0.94rem;">✅ Mini Quiz kiểm tra nhanh:</div>
         <div id="quizQuestion" style="margin-top:6px;font-size:0.93rem;"></div>
@@ -313,6 +316,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <section class="card" id="uniSection" style="display:none;border-color:#f59e0b55;">
       <h2 class="section-title">📚 Kho Ví Dụ Thi Tự Luận Cuối Kỳ (Liên hệ môn học)</h2>
       <div id="uniList"></div>
+    </section>
+
+    <!-- English Summary -->
+    <section class="card" id="enSection" style="display:none;border-color:#3b82f655;">
+      <h2 class="section-title">🇬🇧 English Recap &amp; Financial Vocabulary</h2>
+      <div id="enContent"></div>
     </section>
   </div>
 
@@ -390,6 +399,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       lessonChartWrap.innerHTML = ep.lesson_chart_rel_path
         ? `<img class="chart-img" src="${ep.lesson_chart_rel_path}" alt="Biểu đồ bài học TA" />`
         : "";
+      const taFileWrap = document.getElementById("taFileWrap");
+      const taFileLink = document.getElementById("taFileLink");
+      if (ep.ta_file_rel_path) {
+        taFileLink.href = ep.ta_file_rel_path;
+        taFileWrap.style.display = "block";
+      } else {
+        taFileWrap.style.display = "none";
+      }
 
       // Quiz
       const q = lesson.quiz;
@@ -491,6 +508,25 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         `).join("");
       } else {
         uniSection.style.display = "none";
+      }
+
+      // English recap
+      const enSection = document.getElementById("enSection");
+      const enContent = document.getElementById("enContent");
+      const en = ep.briefing.english_summary;
+      if (en && (en.market_summary_en || en.ta_lesson_en)) {
+        enSection.style.display = "block";
+        const vocabHtml = (en.vocab || []).map(v =>
+          `<li><strong>${v.term}</strong> (${v.vn}): ${v.meaning}</li>`
+        ).join("");
+        enContent.innerHTML = `
+          <div style="font-weight:700;color:#7dd3fc;margin-bottom:6px;">${en.headline_en || ""}</div>
+          <p style="margin:6px 0;">${en.market_summary_en || ""}</p>
+          <p style="margin:6px 0;color:#cbd5e1;"><em>TA Focus:</em> ${en.ta_lesson_en || ""}</p>
+          ${vocabHtml ? `<ul style="padding-left:18px;font-size:0.9rem;color:#e2e8f0;">${vocabHtml}</ul>` : ""}
+        `;
+      } else {
+        enSection.style.display = "none";
       }
     }
 
