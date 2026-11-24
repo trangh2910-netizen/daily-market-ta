@@ -86,9 +86,10 @@ def generate_ta_lesson_file(
     <p>{html.escape(briefing.get('case_walkthrough', ''))}</p>
     {chart_block}
 
-    <h2>3. Phiên bản Tiếng Anh cơ bản (Simple English)</h2>
+    <h2>3. Tập luyện nghe Tiếng Anh cơ bản (Simple English Listening)</h2>
     <div class="box-en">
       <p style="margin:0 0 8px;"><strong>Topic:</strong> {html.escape(str(en.get('headline_en', lesson['title'])))}</p>
+      {f"<p style='margin:0 0 8px;background:#fff;padding:10px;border-radius:8px;border:1px solid #bfdbfe;'><strong>🎧 Transcript (Nghe file english_listening.mp3 và dò chữ):</strong><br/>{html.escape(str(en.get('listening_script_en','')))}</p>" if en.get("listening_script_en") else ""}
       <p style="margin:0 0 8px;"><strong>TA Lesson in Simple English:</strong> {html.escape(str(en.get('ta_lesson_en', '')))}</p>
       <p style="margin:0;"><strong>Market Recap:</strong> {html.escape(str(en.get('market_summary_en', '')))}</p>
     </div>

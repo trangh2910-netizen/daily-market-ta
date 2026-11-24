@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from audio_generator import generate_podcast_audio
+from audio_generator import generate_english_audio, generate_podcast_audio
 from chart_generator import render_annotated_chart
 from config import BASE_DIR, DOCS_DIR, EPISODES_DIR, STATE_FILE, VN_TZ
 from market_data import collect_all_market_data
@@ -129,8 +129,15 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
     ep_dir = EPISODES_DIR / today_iso
     ep_dir.mkdir(parents=True, exist_ok=True)
 
-    print("[5/7] Synthesizing podcast audio...")
+    print("[5/7] Synthesizing Vietnamese podcast & English listening audio...")
     audio_path = generate_podcast_audio(briefing["podcast_script"], ep_dir)
+    en_audio_path: Path | None = None
+    en_script = (briefing.get("english_summary") or {}).get("listening_script_en") or (briefing.get("english_summary") or {}).get("market_summary_en")
+    if en_script:
+        try:
+            en_audio_path = generate_english_audio(en_script, ep_dir)
+        except Exception as exc:
+            print(f"[WARN] English audio skipped: {exc}")
 
     print("[6/7] Rendering 9:16 TikTok/Shorts video & bilingual TA study file...")
     tiktok_rel = ""
@@ -168,6 +175,7 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
         "vni_chart_rel_path": context["vni_chart_rel_path"],
         "lesson_chart_rel_path": context["lesson_chart_rel_path"],
         "audio_rel_path": f"./episodes/{today_iso}/{audio_path.name}",
+        "en_audio_rel_path": f"./episodes/{today_iso}/{en_audio_path.name}" if en_audio_path else "",
         "tiktok_rel_path": tiktok_rel,
         "ta_file_rel_path": ta_file_rel,
     }
@@ -197,6 +205,7 @@ def publish_episode(context: dict[str, Any], briefing: dict[str, Any]) -> Path:
         charts_to_attach,
         ta_file_path=ta_file_path,
         ta_attachment_name=ta_attachment_name,
+        en_audio_path=en_audio_path,
     )
     print(f"[DONE] Web app ready at: {index_path}")
     return index_path

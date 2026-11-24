@@ -49,8 +49,8 @@ def _split_chunks(text: str, max_chars: int = 450) -> list[str]:
     return chunks
 
 
-def _synthesize_gemini_tts(text: str, out_mp3_path: Path) -> Path:
-    """Synthesize expressive Northern Vietnamese male podcast voice using Gemini 3.8 Flash TTS and encode compact MP3."""
+def _synthesize_gemini_tts(text: str, out_mp3_path: Path, style: str = GEMINI_TTS_STYLE, voice: str = GEMINI_TTS_VOICE) -> Path:
+    """Synthesize expressive podcast voice using Gemini 3.8 Flash TTS and encode compact MP3."""
     import subprocess
     import imageio_ffmpeg
     from google import genai
@@ -68,7 +68,7 @@ def _synthesize_gemini_tts(text: str, out_mp3_path: Path) -> Path:
                         "annotations": [
                             {
                                 "type": "speech_metadata",
-                                "style": GEMINI_TTS_STYLE,
+                                "style": style,
                             }
                         ],
                     }
@@ -78,7 +78,7 @@ def _synthesize_gemini_tts(text: str, out_mp3_path: Path) -> Path:
         response_format={"type": "audio"},
         generation_config={
             "speech_config": [
-                {"voice": GEMINI_TTS_VOICE},
+                {"voice": voice},
             ]
         },
     )
@@ -97,12 +97,12 @@ def _synthesize_gemini_tts(text: str, out_mp3_path: Path) -> Path:
         )
         if proc.returncode == 0 and out_mp3_path.exists() and out_mp3_path.stat().st_size > 1024:
             wav_tmp.unlink(missing_ok=True)
-            print(f"[TTS] Generated via {GEMINI_TTS_MODEL} -> compact MP3 (voice={GEMINI_TTS_VOICE}, Northern cheerful style).")
+            print(f"[TTS] Generated via {GEMINI_TTS_MODEL} -> compact MP3 ({out_mp3_path.name}, voice={voice}).")
             return out_mp3_path
     except Exception:
         pass
 
-    print(f"[TTS] Generated via {GEMINI_TTS_MODEL} WAV (voice={GEMINI_TTS_VOICE}, Northern cheerful style).")
+    print(f"[TTS] Generated via {GEMINI_TTS_MODEL} WAV ({wav_tmp.name}, voice={voice}).")
     return wav_tmp
 
 
@@ -162,4 +162,30 @@ def generate_podcast_audio(
     tts = gTTS(text=clean_text, lang="vi", slow=False)
     tts.save(str(mp3_path))
     print("[TTS] Generated via gTTS (vi).")
+    return mp3_path
+
+
+def generate_english_audio(english_script: str, output_dir: Path) -> Path:
+    """Create a clear, slightly slower-paced English listening practice MP3."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    clean_text = _clean_for_speech(english_script)
+    mp3_path = output_dir / "english_listening.mp3"
+    en_style = "clear, friendly, slightly slower-paced natural American English male podcast host for English learners"
+
+    if GEMINI_API_KEY:
+        try:
+            return _synthesize_gemini_tts(clean_text, mp3_path, style=en_style, voice=GEMINI_TTS_VOICE)
+        except Exception as exc:
+            print(f"[WARN] Gemini English TTS unavailable ({exc}); falling back to edge-tts.")
+
+    try:
+        asyncio.run(_synthesize_edge_chunked_async(clean_text, mp3_path, "en-US-AndrewNeural", "-6%"))
+        print("[TTS] English listening generated via edge-tts (en-US-AndrewNeural, rate=-6%).")
+        return mp3_path
+    except Exception as exc:
+        print(f"[WARN] edge-tts English unavailable ({exc}); switching to gTTS English fallback.")
+
+    tts = gTTS(text=clean_text, lang="en", slow=False)
+    tts.save(str(mp3_path))
+    print("[TTS] English listening generated via gTTS (en).")
     return mp3_path

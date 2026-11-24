@@ -318,9 +318,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div id="uniList"></div>
     </section>
 
-    <!-- English Summary -->
+    <!-- English Listening & Summary -->
     <section class="card" id="enSection" style="display:none;border-color:#3b82f655;">
-      <h2 class="section-title">🇬🇧 English Recap &amp; Financial Vocabulary</h2>
+      <h2 class="section-title">🇬🇧 Tập Luyện Nghe Tiếng Anh Cơ Bản (English Listening)</h2>
+      <div id="enAudioWrap" style="margin:8px 0 12px;display:none;">
+        <audio id="enAudioEl" controls style="width:100%;"></audio>
+      </div>
       <div id="enContent"></div>
     </section>
   </div>
@@ -510,17 +513,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         uniSection.style.display = "none";
       }
 
-      // English recap
+      // English listening & recap
       const enSection = document.getElementById("enSection");
       const enContent = document.getElementById("enContent");
+      const enAudioWrap = document.getElementById("enAudioWrap");
+      const enAudioEl = document.getElementById("enAudioEl");
       const en = ep.briefing.english_summary;
-      if (en && (en.market_summary_en || en.ta_lesson_en)) {
+      if (en && (en.listening_script_en || en.market_summary_en || en.ta_lesson_en)) {
         enSection.style.display = "block";
+        if (ep.en_audio_rel_path) {
+          enAudioEl.src = ep.en_audio_rel_path;
+          enAudioWrap.style.display = "block";
+        } else {
+          enAudioWrap.style.display = "none";
+        }
         const vocabHtml = (en.vocab || []).map(v =>
           `<li><strong>${v.term}</strong> (${v.vn}): ${v.meaning}</li>`
         ).join("");
+        const transcriptHtml = en.listening_script_en
+          ? `<div style="background:#0f172a;padding:12px;border-radius:10px;border:1px solid #334155;margin:10px 0;font-size:0.93rem;color:#e2e8f0;"><strong>🎧 Transcript (Nghe và dò chữ):</strong><br/>${en.listening_script_en}</div>`
+          : "";
         enContent.innerHTML = `
           <div style="font-weight:700;color:#7dd3fc;margin-bottom:6px;">${en.headline_en || ""}</div>
+          ${transcriptHtml}
           <p style="margin:6px 0;">${en.market_summary_en || ""}</p>
           <p style="margin:6px 0;color:#cbd5e1;"><em>TA Focus:</em> ${en.ta_lesson_en || ""}</p>
           ${vocabHtml ? `<ul style="padding-left:18px;font-size:0.9rem;color:#e2e8f0;">${vocabHtml}</ul>` : ""}

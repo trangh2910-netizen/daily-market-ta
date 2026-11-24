@@ -143,6 +143,15 @@ def _generate_local_briefing(
             f"Today's Technical Analysis focus is {lesson['title']}. "
             f"We look at {sym} ({sym_chg:+.2f}%) to see how buyers and sellers reacted on the daily candlestick chart."
         ),
+        "listening_script_en": (
+            f"Hello and welcome to your daily English listening practice for {date_vn}. "
+            f"Let us look at the market in simple words. On {trade_date_vn}, Vietnam's main stock index, "
+            f"VN-Index, closed at {vni['close']:.2f} points, changing {vni['change_pct']:+.2f} percent. "
+            f"In global news, investors are watching interest rates and the US dollar exchange rate closely. "
+            f"When rates stay high, big money becomes careful. Today we also study {sym}, which moved {sym_chg:+.2f} percent. "
+            f"Remember today's simple chart rule: look at the candle color and the trading volume to see if buyers are strong. "
+            f"Keep practicing a few minutes every day, and you will understand both finance and English much better. See you tomorrow!"
+        ),
         "vocab": [
             {"term": "Candlestick", "vn": "Nến Nhật", "meaning": "Thanh biểu đồ thể hiện giá mở, đóng, cao nhất và thấp nhất trong ngày."},
             {"term": "Support", "vn": "Vùng hỗ trợ (Sàn)", "meaning": "Mức giá thấp mà trước đó người mua thường vào đỡ giá."},
@@ -221,7 +230,7 @@ def _generate_gemini_briefing(
         "4) 'market_deep_dive': 5-6 câu giải thích bằng ngôn ngữ bình dân bức tranh VN-Index & watchlist (vì sao dòng tiền chọn nhóm này, tránh nhóm kia dựa trên đường giá trung bình 20 ngày, độ nóng RSI, khối lượng).\n"
         "5) 'case_walkthrough': 5-6 câu hướng dẫn cực kỳ dễ hiểu từng bước để người mới nhìn vào biểu đồ mã minh họa của bài học TA hôm nay (chỉ rõ giá mở/đóng cửa, râu nến, đường trung bình, khối lượng và tâm lý người mua/bán).\n"
         "6) 'uni_exam_examples': danh sách 2 ví dụ thực tế (mỗi ví dụ là 1 object {'subject': '...', 'concept': '...', 'essay_example': '...'}) liên hệ TRỰC TIẾP tin tức hoặc cổ phiếu hôm nay vào 2 trong 5 môn học của sinh viên: [Quản trị tài chính, Lập dự án đầu tư, Kinh tế vi mô, Nguyên lý kế toán, Hệ thống thông tin kế toán (AIS)] để dùng làm ví dụ thi tự luận cuối kỳ.\n"
-        "7) 'english_summary': 1 object gồm {'headline_en': '...', 'market_summary_en': '3-4 câu tiếng Anh cơ bản, tự nhiên tóm tắt diễn biến thị trường & tin chính hôm nay', 'ta_lesson_en': '2-3 câu tiếng Anh đơn giản giải thích bài học TA hôm nay trên mã minh họa', 'vocab': danh sách 5 object {'term': '...', 'vn': '...', 'meaning': 'giải thích ngắn tiếng Việt dễ hiểu'} gồm 5 từ vựng tài chính/TA xuất hiện hôm nay}.\n"
+        "7) 'english_summary': 1 object gồm {'headline_en': '...', 'market_summary_en': '3-4 câu tiếng Anh cơ bản tóm tắt diễn biến thị trường & tin chính', 'ta_lesson_en': '2-3 câu tiếng Anh đơn giản giải thích bài học Phân tích kỹ thuật hôm nay', 'listening_script_en': 'đoạn văn 140-170 từ tiếng Anh CƠ BẢN, CÂU NGẮN RÕ RÀNG dùng để NGƯỜI MỚI TẬP LUYỆN NGHE TIẾNG ANH hàng ngày về chính bản tin kinh tế, ảnh hưởng tới Việt Nam và cổ phiếu minh họa hôm nay (không markdown)', 'vocab': danh sách 5 object {'term': '...', 'vn': '...', 'meaning': 'giải thích ngắn tiếng Việt dễ hiểu'} gồm 5 từ vựng xuất hiện trong bài nghe tiếng Anh}.\n"
         "8) 'podcast_script': kịch bản đọc Audio tiếng Việt DÙNG TỪ CƠ BẢN DỄ NGHE DỄ HIỂU, NHÍ NHẢNH, DÍ DỎM (950-1.150 từ, KHÔNG dùng ký tự markdown như ** hay #, viết số thập phân bằng dấu phẩy để đọc tự nhiên). Giải thích rõ 'vì sao' và 'ảnh hưởng gì về Việt Nam' bằng ngôn ngữ đời thường cho F0.\n\n"
         "Trả về ĐÚNG 1 JSON object hợp lệ (không bọc markdown ```json).\n\n"
         f"DỮ LIỆU THẬT:\n{json.dumps(prompt_payload, ensure_ascii=False)}"
@@ -239,7 +248,7 @@ def _generate_gemini_briefing(
             raw = (resp.text or "").strip()
             if raw.startswith("```"):
                 raw = raw.strip("`").lstrip("json").strip()
-            parsed = json.loads(raw)
+            parsed = json.loads(raw, strict=False)
             parsed["mode"] = f"gemini:{model_name}"
             print(f"[AI] Briefing generated via {model_name}.")
             return parsed
