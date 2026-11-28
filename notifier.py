@@ -129,6 +129,18 @@ def send_daily_email(
             "</div>"
         )
 
+    bb = briefing.get("brain_booster") or {}
+    bb_html = ""
+    if bb.get("insight"):
+        bb_html = (
+            "<h3 style='color:#1e293b;border-bottom:1px solid #cbd5e1;padding-bottom:4px;'>"
+            f"⚡ 6. Góc Thông Não Hôm Nay ({bb.get('theme', '')})</h3>"
+            "<div style='background:#f5f3ff;padding:12px;border-radius:10px;font-size:13.5px;border-left:4px solid #7c3aed;'>"
+            f"<div style='font-weight:bold;color:#5b21b6;'>{bb.get('title','')}</div>"
+            f"<p style='margin:6px 0 0;color:#334155;'>{bb.get('insight','')}</p>"
+            "</div>"
+        )
+
     site_cta = (
         f'<p style="margin:20px 0;"><a href="{PUBLIC_SITE_URL}" '
         f'style="background:#0284c7;color:#ffffff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">'
@@ -170,6 +182,8 @@ def send_daily_email(
       {uni_html}
 
       {en_html}
+
+      {bb_html}
 
       {site_cta}
       <p style="font-size:13px;color:#64748b;margin-top:16px;">📎 <strong>Đính kèm sẵn ngay trong email:</strong> file nghe tiếng Việt <strong>podcast.mp3</strong>, file luyện nghe Tiếng Anh <strong>english_listening.mp3</strong>, <strong>file tài liệu TA (.html)</strong>, và <strong>2 ảnh biểu đồ chú thích</strong>.</p>

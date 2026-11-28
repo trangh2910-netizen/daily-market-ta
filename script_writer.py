@@ -3,9 +3,29 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from typing import Any
 
-from config import GEMINI_API_KEY, GEMINI_FALLBACK_MODELS
+from config import GEMINI_API_KEY, GEMINI_FALLBACK_MODELS, VN_TZ
+
+BRAIN_BOOSTER_THEMES = [
+    ("Thám tử Báo cáo Tài chính", "Soi dòng tiền thật vs lợi nhuận sổ sách, hàng tồn kho và nợ vay doanh nghiệp"),
+    ("Bẫy Tâm Lý & Chiêu Trò Tài Chính", "Nhận diện hiệu ứng FOMO, gồng lỗ (sunk cost), mỏ neo hay chiêu kéo xả"),
+    ("Mô Hình Kinh Doanh & Chuỗi Giá Trị", "Cách doanh nghiệp kiếm tiền thật ngoài đời từ biên lợi nhuận và chuỗi cung ứng"),
+    ("Thám tử Báo cáo Tài chính", "Soi sức khỏe tài chính, vốn lưu động và áp lực lãi vay trên BCTC"),
+    ("Bẫy Tâm Lý & Chiêu Trò Tài Chính", "Cẩn thận bẫy tin tức giật tít, tâm lý bầy đàn và quản trị cảm xúc"),
+    ("Tư Duy Phản Biện Đa Chiều (Bull vs Bear)", "Đặt 2 góc nhìn đối lập (phe lạc quan vs phe thận trọng) cho sự kiện nóng tuần này"),
+    ("Tư Duy Phản Biện Đa Chiều (Bull vs Bear)", "Nhìn ngược lại số liệu bị giấu sau mặt báo để không bị tin tức dắt mũi"),
+]
+
+
+def _today_brain_theme(market_data: dict[str, Any]) -> tuple[str, str]:
+    try:
+        dt = datetime.fromisoformat(market_data["generated_at"])
+        idx = dt.astimezone(VN_TZ).weekday()
+    except Exception:
+        idx = datetime.now(VN_TZ).weekday()
+    return BRAIN_BOOSTER_THEMES[idx % len(BRAIN_BOOSTER_THEMES)]
 
 
 def _fmt_num(val: float | int | None, is_index: bool = False) -> str:
@@ -121,16 +141,29 @@ def _generate_local_briefing(
 
     # Part 3: TA Lesson on Real Chart
     walkthrough = _build_case_study_walkthrough(lesson, case_stock)
+    theme_name, theme_focus = _today_brain_theme(market_data)
+    sym = case_stock["symbol"] if case_stock else "VN-Index"
+    brain_booster = {
+        "theme": theme_name,
+        "title": f"{theme_name}: Nhìn sâu sau con số phiên {trade_date_vn}",
+        "insight": (
+            f"Chủ đề hôm nay là {theme_name} ({theme_focus}). "
+            f"Khi thấy thị trường hoặc cổ phiếu {sym} biến động, đừng chỉ nhìn giá xanh hay đỏ hôm nay mà hãy hỏi: "
+            f"dòng tiền có đi kèm khối lượng thật không, và rủi ro ngược lại nếu tin xấu xuất hiện là gì? "
+            f"Giữ thói quen đặt câu hỏi phản biện 2 chiều mỗi ngày sẽ giúp bạn tránh bẫy đám đông và nhớ bài rất lâu."
+        ),
+    }
+
     ta_spoken = (
         f"Phần ba: Mỗi ngày một chiêu Phân tích kỹ thuật. Chủ đề hôm nay là {lesson['title']}. "
         f"Kiến thức cốt lõi bạn cần nhớ: {lesson['concept_plain']} "
         f"Bây giờ hãy áp dụng ngay lên biểu đồ thật: {walkthrough} "
-        f"Sau khi nghe xong, bạn lướt xuống phần bài tập trắc nghiệm nhanh bên dưới để kiểm tra xem mình đã nắm chắc bài hôm nay chưa nhé. Chúc bạn một ngày đầu tư tỉnh táo và nhiều năng lượng!"
+        f"Cuối cùng là góc thông não hôm nay với chủ đề {theme_name}. {brain_booster['insight']} "
+        f"Sau khi nghe xong, bạn lướt xuống làm bài tập trắc nghiệm nhanh nhé. Chúc bạn một ngày nhiều năng lượng!"
     )
 
     podcast_script = f"{intro_market_note}\n\n{news_spoken}\n\n{market_spoken}\n\n{ta_spoken}"
 
-    sym = case_stock["symbol"] if case_stock else "VN-Index"
     sym_chg = case_stock["change_pct"] if case_stock else vni["change_pct"]
     english_summary = {
         "headline_en": f"Daily Market & TA Recap ({date_vn})",
@@ -167,6 +200,7 @@ def _generate_local_briefing(
         "intro_note": intro_market_note,
         "podcast_script": podcast_script,
         "case_walkthrough": walkthrough,
+        "brain_booster": brain_booster,
         "english_summary": english_summary,
     }
 
@@ -199,10 +233,12 @@ def _generate_gemini_briefing(
         for n in news[:5]
     ]
 
+    theme_name, theme_focus = _today_brain_theme(market_data)
     prompt_payload = {
         "today_vn": market_data["generated_date_vn"],
         "market_trade_date_vn": market_data["market_trade_date_vn"],
         "is_weekend_or_closed": market_data["is_weekend_or_closed"],
+        "today_brain_booster_theme": {"theme": theme_name, "focus": theme_focus},
         "vnindex": {
             "close": market_data["vnindex"]["close"],
             "change_pct": market_data["vnindex"]["change_pct"],
@@ -231,7 +267,8 @@ def _generate_gemini_briefing(
         "5) 'case_walkthrough': 5-6 câu hướng dẫn cực kỳ dễ hiểu từng bước để người mới nhìn vào biểu đồ mã minh họa của bài học TA hôm nay (chỉ rõ giá mở/đóng cửa, râu nến, đường trung bình, khối lượng và tâm lý người mua/bán).\n"
         "6) 'uni_exam_examples': danh sách 2 ví dụ thực tế (mỗi ví dụ là 1 object {'subject': '...', 'concept': '...', 'essay_example': '...'}) liên hệ TRỰC TIẾP tin tức hoặc cổ phiếu hôm nay vào 2 trong 5 môn học của sinh viên: [Quản trị tài chính, Lập dự án đầu tư, Kinh tế vi mô, Nguyên lý kế toán, Hệ thống thông tin kế toán (AIS)] để dùng làm ví dụ thi tự luận cuối kỳ.\n"
         "7) 'english_summary': 1 object gồm {'headline_en': '...', 'market_summary_en': '3-4 câu tiếng Anh cơ bản tóm tắt diễn biến thị trường & tin chính', 'ta_lesson_en': '2-3 câu tiếng Anh đơn giản giải thích bài học Phân tích kỹ thuật hôm nay', 'listening_script_en': 'đoạn văn 140-170 từ tiếng Anh CƠ BẢN, CÂU NGẮN RÕ RÀNG dùng để NGƯỜI MỚI TẬP LUYỆN NGHE TIẾNG ANH hàng ngày về chính bản tin kinh tế, ảnh hưởng tới Việt Nam và cổ phiếu minh họa hôm nay (không markdown)', 'vocab': danh sách 5 object {'term': '...', 'vn': '...', 'meaning': 'giải thích ngắn tiếng Việt dễ hiểu'} gồm 5 từ vựng xuất hiện trong bài nghe tiếng Anh}.\n"
-        "8) 'podcast_script': kịch bản đọc Audio tiếng Việt DÙNG TỪ CƠ BẢN DỄ NGHE DỄ HIỂU, NHÍ NHẢNH, DÍ DỎM (950-1.150 từ, KHÔNG dùng ký tự markdown như ** hay #, viết số thập phân bằng dấu phẩy để đọc tự nhiên). Giải thích rõ 'vì sao' và 'ảnh hưởng gì về Việt Nam' bằng ngôn ngữ đời thường cho F0.\n\n"
+        "8) 'brain_booster': 1 object gồm {'theme': tên chủ đề trong today_brain_booster_theme, 'title': tiêu đề ngắn gọn thật cuốn, 'insight': '3-4 câu ĐẮT GIÁ, sắc sảo bằng từ ngữ bình dân gắn đúng chủ đề today_brain_booster_theme vào một cổ phiếu hoặc tin tức thật hôm nay giúp người nghe thông não (ví dụ chỉ ra góc nhìn Bull vs Bear, bẫy FOMO/sunk cost, hoặc chi tiết đắt giá trên BCTC)'}.\n"
+        "9) 'podcast_script': kịch bản đọc Audio tiếng Việt DÙNG TỪ CƠ BẢN DỄ NGHE DỄ HIỂU, NHÍ NHẢNH, DÍ DỎM (950-1.150 từ, KHÔNG dùng ký tự markdown như ** hay #, viết số thập phân bằng dấu phẩy để đọc tự nhiên). Giải thích rõ 'vì sao' và 'ảnh hưởng gì về Việt Nam', và kết thúc bằng 3-4 câu chốt 'Góc thông não' từ 'brain_booster'.\n\n"
         "Trả về ĐÚNG 1 JSON object hợp lệ (không bọc markdown ```json).\n\n"
         f"DỮ LIỆU THẬT:\n{json.dumps(prompt_payload, ensure_ascii=False)}"
     )

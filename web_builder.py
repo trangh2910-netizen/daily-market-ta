@@ -326,6 +326,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       </div>
       <div id="enContent"></div>
     </section>
+
+    <!-- Brain Booster -->
+    <section class="card" id="bbSection" style="display:none;border-color:#a855f766;">
+      <h2 class="section-title">⚡ Góc Thông Não Hôm Nay</h2>
+      <div id="bbContent"></div>
+    </section>
   </div>
 
   <script>
@@ -542,6 +548,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         `;
       } else {
         enSection.style.display = "none";
+      }
+
+      // Brain Booster
+      const bbSection = document.getElementById("bbSection");
+      const bbContent = document.getElementById("bbContent");
+      const bb = ep.briefing.brain_booster;
+      if (bb && bb.insight) {
+        bbSection.style.display = "block";
+        bbContent.innerHTML = `
+          <div class="news-item" style="border-left-color:#a855f7;">
+            <div class="news-meta">${bb.theme || ""}</div>
+            <div class="news-title">${bb.title || ""}</div>
+            <div class="news-meaning">${bb.insight}</div>
+          </div>
+        `;
+      } else {
+        bbSection.style.display = "none";
       }
     }
 
